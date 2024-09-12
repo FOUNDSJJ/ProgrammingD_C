@@ -1,0 +1,274 @@
+程序设计作业6
+
+
+main.cpp
+
+#include <iostream>
+#include <fstream>
+#include "MyString.h"
+
+using namespace std;
+
+//要求：对arr数组中的所有对象排序
+//排序过程中需要对两个对象比较、交换
+//使用MyString的compareTo()和exchangeWith()
+void sortMyString(MyString arr[], int count)
+{
+	for (int a = 0; a < count-2; a++) {
+		for (int j = 0; j < count - a - 2; j++) {
+			if (arr[j].compareTo(arr[j + 1]) == 1) {
+				arr[j].exchangeWith(arr[j + 1]);
+			}
+		}
+	}
+	cout << "shujunjie 2023302111120" << endl;
+	//请填写程序
+}
+
+int main()
+{
+	//请确保names.txt文件与编译后的exe文件位于同一文件夹
+	ifstream txtFile("names.txt");
+	char txtLine[MyString::CAPACITY];
+	//虽然数组定义了150个元素，但文件中只有128个名字，
+	//所以只有前128个元素填充了内容并参与排序
+	MyString myArr[150];
+	int count = 0;
+	//循环读取文件中的每一行，每读一行，填充txtLine数组，
+	//再用txtLine数组的内容填充myArr的一个对象，
+	//读到文件末尾，getline会返回0，导致循环结束
+	while (txtFile.getline(txtLine, MyString::CAPACITY))
+		myArr[count++].setString(txtLine);
+	txtFile.close();
+	sortMyString(myArr, count);
+	for (int i = 0; i < count; i++)
+		cout << myArr[i].getString() << endl;
+	return 0;
+}
+
+
+
+
+
+
+MyString.h
+
+class MyString
+{
+public:
+	MyString() {
+		c[0] = '\0';
+	}
+	void exchangeWith(MyString &);
+	int compareTo(MyString &);
+	void setString(char[]);
+	char *getString() {
+		return c;
+	}
+	static const int CAPACITY = 64;
+
+private:
+	char c[CAPACITY];
+};
+
+
+
+MyString.cpp
+
+
+#include "MyString.h"
+
+//要求：把本对象和otherString对象的c数组内容交换
+void MyString::exchangeWith(MyString &otherString)
+{
+	int i = 0;
+	while(i<64) {
+		char temp;
+		temp = c[i];
+		c[i] = otherString.c[i];
+		otherString.c[i]=temp;
+		i++;
+	}
+	//请填写程序
+}
+
+//要求：把本对象和otherString对象的c数组逐字符比较
+//1）比较规则同英文词典排序规则
+//2）如果本对象字符串应排在otherString的前面，则返回一负数
+//3）如果本对象字符串应排在otherString的后面，则返回一正数
+//4）如果两个字符串完全相同，则返回0
+//注意：字符串以'\0'结尾，"Jack"应排在"Jackson"前面
+int MyString::compareTo(MyString &otherString)
+{
+	for (int i = 0; i <= 64; i++) {
+		if (c[i] < otherString.c[i]||c[i]==' ') {
+			return -1;
+			break;
+		}
+		if (c[i] > otherString.c[i]|| otherString.c[i]==' ') {
+			return 1;
+			break;
+		}
+		if (c[i] == '\0'&& otherString.c[i] != '\0') {
+			return -1;
+			break;
+		}
+		if (otherString.c[i] == '\0'&&c[i]!='\0') {
+			return 1;
+		}
+		if (c[i] == '\0'&& otherString.c[i] == '\0') {
+			return 0;
+			break;
+		}
+	}
+	//请填写程序
+}
+
+//要求：把s中的字符逐个复制到本对象的c数组
+//注意：字符串以'\0'结尾，复制到'\0'即可停止
+void MyString::setString(char s[])
+{
+	int i = 0;
+	while (s[i] != '\0') {
+			c[i] = s[i];
+			i++;
+	 }
+	c[i] = '\0';
+	//请填写程序
+}
+
+
+
+
+names.txt
+
+
+Huanzhen Chen
+Mayank Patel
+Claudia Lazarte
+Jimoh Osuolale
+Mona Ahmed
+Nestor Noudeke
+Ralph Mitlohner
+Sanabil yaqoob
+Sumon Das
+Trust Beta
+Alberta Aseye Ama Duhoe
+Jennifer Ball
+Mounir Triki
+Timang rinando
+Assefa Habtemariam
+Danladi Drambi Usman
+Giovanni Gnemi
+James Messo Raude
+Kei Tomimura
+Martyna Glodowska
+Michiko Takagaki
+Rustam Muradov
+Tahar Dob
+Wei Shanqing
+Majid Majidian
+Aditi Mukherji
+Ibrahim Muhammad
+Md Kamal Uddin
+Rachid SMAIL
+Xuan Zhang
+Tiangoua Kone
+Gopal Panda
+Rajan Kumar
+A. S. Venkatesh
+Hao Cheng
+Kyohei Ohga
+Nasiruddin khan
+PIYUSH GUPTA
+Saad Mogren ALmogren
+Stephen Montefort
+Thomas Hauquin
+Yukun Xiao
+George A. Sorial
+Ling-Yan He
+Neslihan Ekinci
+Robert L. Ryan
+Theophile Gnagne
+Anna Schneider
+Alexandru-Ionut Petrisor
+J.A.O. Oyekunle
+Nawee Noon-Anant
+Syed Ariful Haque
+Alex Opoku
+Jian Zhang
+O. O. Olasanmi
+Udosen Idem
+Abdullah Al-Fawwaz
+Elisabetta Giampiccolo
+Irina Chernykh
+Majlinda Mecajj
+Muhammad Riaz
+Qianqin Jiang
+Tarbiat Moderass
+Walter Malagutti Filho
+Chongmin Yang
+Pingping GE
+Ahmad Hassan Ahmad
+Ozge Korkmaz
+Stefano Zedda
+Yang WANG
+Huizhi Zhang
+Mukamwiza Berthilde
+Pollalis Yannis
+Towfik bouchaour
+Yuecun Wang
+Rino de Sagun
+Terry Haydn
+Shuiming Zhang
+Zhaoying Hu
+Adijat Bola Ibrahhem
+Farouk Mselmi
+Jesus Sarol
+Matteo Spada
+TAIWO OWOLABI
+Pravat Kumar Shit
+William T. Comer
+Pradeep Kumar Lal
+William Padgett
+Zohreh Rahbani
+Nicolae ANGHEL
+Amol hekare
+Andres Machicote
+Daniela Ponce
+Filomena Altieri
+Giulianna Pinheiro
+Jamila Yau
+Ke Liu
+Li Dong Liu
+Mathilde Jalving
+Minoru Tanaka
+Nicholas Shannon
+Rehab Badi
+Sandra zribi
+Shail pandher
+UMAR ABDULLAHI
+Yinai Jin
+Zhiheng Huang
+Alan Carter
+Huang Zefeng
+Michel Rautureau
+Sarah Diop
+Amir Hossein Mahvi
+CHAIB Rachid
+Hichem ELEUCH
+Leszek Furman
+Nadia Tanzeem
+Ruiliang Zhang
+Sourav Pal
+Zbigniew Zmudka
+Mattew P. D. Mahindaratne
+David Chau
+Ken-ichi Tanaka
+Qing Zhang
+Germana Sorge
+Karl Abbott
+Emil Petrescu
+Periklis Papadopoulos
+Xiangming Chen
+

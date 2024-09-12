@@ -1,0 +1,280 @@
+上机作业2
+
+CPU类
+#include <iostream>
+using namespace std;
+class CPU {
+public:
+	void run();
+	void stop();
+private:
+	enum CPU_rank { P1 = 1, P2, P3, P4, P5, P6, P7 };
+	int frequency;
+	float voltage;
+}c;
+void CPU::run() {
+	frequency++;
+	voltage++;
+	cout << frequency << "MHz\n" << voltage << "\n" << P1<< "\n";
+}
+void CPU::stop() {
+	cout << "进行析构函数" << endl;
+}
+int main() {
+	for (int i=1; i <= 7; i++) {
+		c.run();
+		c.stop();
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+Computer类
+#include <iostream>
+using namespace std;
+class Computer {
+public:
+	void run();
+	void stop();
+	class CPU;
+	class RAM;
+	class CDROM;
+private:
+	int cpu; int ram; int cdrom;
+}a;
+class CPU {
+public:
+	int cpu;
+	void show(){
+		cout << "请输入cpu的型号：";
+		cin >> cpu;
+	}
+}b;
+class RAM {
+public:
+	int ram;
+	void show() {
+		cout << "请输入ram的型号：";
+		cin >> ram;
+	}
+}c;
+class CDROM {
+public:
+	int cdrom;
+	void show() {
+		cout << "请输入cdrom的型号：";
+		cin >> cdrom;
+	}
+}d;
+void Computer::run(){
+	b.show();
+	c.show();
+	d.show();
+}
+void Computer::stop() {
+	cout <<"cpu的型号：" << cpu << endl;
+	cout << "ram的型号："<<ram << endl;
+	cout <<"cdrom的型号：" <<cdrom << endl;
+	cout << "进行析构函数" << endl;
+}
+int main() {
+	for (int i = 1; i <= 3; i++) {
+		a.run();
+		a.stop();
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+People类
+#include <iostream>
+using namespace std;
+class Date {
+public:
+	Date(int y, int m, int d);
+	~Date() {};
+	friend class People;
+	void show1() {
+		cout << "出生日期是：" << year << "年" << month << "月" << day << "日" << endl; 
+		cout << "进行析构函数" << endl;
+	};
+private:
+	int year, month, day;
+};
+class People {
+public:
+	People(int number, char sex,int id);
+	void birthdate(const Date& a);
+	void show ();
+private:
+	int number;
+	char sex;
+	int id;
+	int year;
+	int month;
+	int day;
+};
+Date::Date(int y, int m, int d) {
+	year = y;
+	month = m;
+	day = d;
+}
+People::People(int n, char s,int i) {
+	number = n;
+	sex = s;
+	id = i;
+}
+void People::birthdate (const Date& a) {
+	year = a.year;
+	month = a.month;
+	day = a.day;
+}
+inline void People::show() {
+	cout << "编号是:" << number << endl;
+	cout << "性别是:" << sex << endl;
+	cout << "身份证号是:" << id << endl;
+}
+int main() {
+	int n;
+	char s;
+	int i;
+	int y;
+	int m;
+	int d;
+	for (int x = 0; x >= 0; x++) {
+		cout << "请输入人员的编号、性别、出生日期、身份证号：";
+		cin >> n >> s >> y >> m >> d >> i;
+		People p(n, s, i);
+		Date a(y, m, d);
+		p.show();
+		a.show1();
+	}
+	return 0;
+}
+
+
+
+
+
+
+时间结构体
+#include <iostream>
+using namespace std;
+struct time {
+	string year;
+	string month;
+	string day;
+	string hour;
+	string minute;
+	string second;
+};
+
+int main()
+{
+	cout << "请依次输入年、月、日、小时、分、秒" << endl;
+	string year;
+	string month ;
+	string day ;
+	string hour ;
+	string minute ;
+	string second ;
+	cin >> year >> month >> day >> hour >> minute >> second;
+	cout << year << "年" << month << "月" << day << "日" << hour << "点" << minute << "分" << second << "秒" << endl;
+	return 0;
+}
+
+
+
+
+
+
+
+运行下面的程序……
+#include <iostream>
+using namespace std;
+void fn1();
+int x = 1, y = 2;
+int main() {
+	cout << "Begin..." << endl;
+	cout << "x= " << x << endl;
+	cout << "y= " << y << endl;
+	cout << "Evaluate x and y in main()... " << endl;
+	int x = 10, y = 20;
+	cout << "x= " << x << endl;
+	cout << "y= " << y << endl;
+	cout << "Step into fn1 ()... " << endl;
+	fn1();
+	cout << "Back in main" << endl;
+	cout << "x= " << x << endl;
+	cout << "y= " << y << endl;
+	return 0;
+}
+void fn1() {
+	int y = 200;
+	cout << "x= " << x << endl;
+	cout << "y= " << y << endl;
+}
+
+
+
+
+
+
+
+CLIENT类
+client.h
+#include <iostream>
+class CLIENT {
+public:
+	CLIENT(char x);
+	void changeServerNume();
+private:
+	char serverName;
+	int static clientNum;
+};
+
+
+
+
+client.cpp
+#include <iostream>
+#include "client.h"
+using namespace std;
+CLIENT::CLIENT (char x) {
+	serverName = x;
+}
+void CLIENT::changeServerNume() {
+	char m;
+	cout << "请输入改变后的服务器名字：";
+	cin >> m;
+	serverName = m;
+	clientNum ++;
+	cout << "serverName:" << serverName << "\n" << "clientNum:" << clientNum;
+}
+
+
+test.cpp
+#include <iostream>
+#include "client.h"
+using namespace std;
+int main() {
+	char p;
+	cout << "请输入服务器名称：";
+	cin >> p ;
+	cout << "serverName:" << p << endl;
+	CLIENT a(p);
+	a.changeServerNume();
+	return 0;
+}

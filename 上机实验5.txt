@@ -1,0 +1,423 @@
+上机实验5
+
+
+Hashset.h
+
+#ifndef _HASHSET_H
+#define _HASHSET_H
+
+#include <iostream>
+
+template <class T>
+class Node
+{
+public:
+    Node<T> *next;
+    T data;
+};
+
+template <class T, class HashFun, class EqualFun>
+class Hashset
+{
+public:
+    //请填写程序
+    Hashset();
+    ~Hashset();
+    void insert(T*);
+    void showInfo(bool);
+    T *find(T&);
+    void remove(T&);
+private:
+    Node<T> **rootArr;
+    //请填写程序
+    int rootCapacity;	
+    int totalCount;		
+    void expandRoot();
+    const int INITIAL_ROOT_CAPACITY = 16;
+};
+
+//请填写程序
+
+template <class T, class HashFun, class EqualFun>
+void Hashset<T, HashFun, EqualFun>::expandRoot() {
+    Node<T>** oldRootArr = rootArr;
+    int oldRootCapacity = rootCapacity;
+    rootCapacity= rootCapacity*2;
+    rootArr = new Node<T>* [rootCapacity];
+    for (int i = 0; i < rootCapacity; i++)
+        rootArr[i] = nullptr;
+    for (int i = 0; i < oldRootCapacity; i++)
+    {
+        Node<T>* p = oldRootArr[i];
+        while (p)
+        {
+            Node<T>* pOldNext = p->next;
+            int hashValue = ((p->data).id) % rootCapacity;
+            p->next = rootArr[hashValue];
+            rootArr[hashValue] = p;
+            p = pOldNext;
+        }
+    }
+    delete[] oldRootArr;
+}
+
+template <class T, class HashFun, class EqualFun>
+Hashset<T, HashFun, EqualFun>::~Hashset() {
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        Node<T>* p = rootArr[i], * q;
+        while (p != nullptr)
+        {
+            q = p;
+            if (p->next != nullptr)
+            {
+                p = p->next;
+                delete q;
+            }
+            else 
+            {
+                delete q;
+                break;
+            }
+        }
+    }
+    delete[] rootArr;
+}
+
+template <class T, class HashFun, class EqualFun>
+void Hashset<T, HashFun, EqualFun>::remove(T& s){
+    int hashValue = (s.id) % rootCapacity;
+    Node<T>* p = rootArr[hashValue];
+    if (p == nullptr)
+    {
+        std::cout << "不存在相同的元素";
+    }
+    else if ((p->data).id==s.id)
+    {
+        rootArr[hashValue] = rootArr[hashValue]->next;
+        delete p;
+        totalCount--;
+    }
+    else
+    {
+        while (p->next != nullptr)
+        {
+            if (((p->next)->data).id == s.id)
+            {
+                delete p->next;
+                p->next = (p->next)->next;
+                totalCount--;
+                break;
+            }
+            p = p->next;
+        }
+    }
+}
+
+template <class T, class HashFun, class EqualFun>
+Hashset<T, HashFun, EqualFun>::Hashset(){
+    rootCapacity = INITIAL_ROOT_CAPACITY;
+    rootArr = new Node<T>* [rootCapacity];
+    for (int i = 0; i < rootCapacity; i++)
+        rootArr[i] = nullptr;
+    totalCount = 0;
+}
+
+template <class T, class HashFun, class EqualFun>
+T* Hashset<T, HashFun, EqualFun>::find(T& s){
+    int hashValue = (s.id) % rootCapacity;
+    Node<T>* p = rootArr[hashValue];
+    if (p != nullptr)
+    {
+        while (p)
+        {
+            if ((p->data).id==s.id) 
+            {
+                return &(p->data);
+                break;
+            }
+            p = p->next;
+            if (p == nullptr) 
+            {
+                return nullptr;
+            }
+        }
+    }
+    else return nullptr;
+}
+
+template <class T, class HashFun, class EqualFun>
+void Hashset<T, HashFun, EqualFun>::showInfo(bool showAllDetails){
+    using namespace std;
+    cout << "Hashset Status:" << endl
+        << "Root array capacity: " << rootCapacity << endl
+        << "Total element count: " << totalCount << endl;
+    if (!showAllDetails)
+        return;
+    cout << endl
+        << "All Elements:" << endl;
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        cout << '[' << i << "] --> ";
+        Node<T>* p = rootArr[i];
+        if (!p)
+        {
+            cout << "nullptr";
+        }
+        while (p)
+        {
+            cout << (p->data);
+            cout << " --> ";
+            p = p->next;
+            if (!p)  
+                cout << "nullptr";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+template <class T, class HashFun, class EqualFun>
+void Hashset<T, HashFun, EqualFun>::insert(T* s) {
+    if (totalCount >= rootCapacity)
+        expandRoot();
+    T m = *s;
+    Node<T>* p = new Node<T>;
+    (p->data).id = m.id;
+    (p->data).sex = m.sex;
+    (p->data).age = m.age;
+    p->next = nullptr;
+    int hashValue = (m.id) % rootCapacity;
+    if (rootArr[hashValue] == nullptr)
+    {
+         rootArr[hashValue]=p;
+     }
+    else{
+        if (rootArr[hashValue]->next == nullptr)
+        {
+            rootArr[hashValue]->next = p;
+        }
+        else
+        {
+            p->next = rootArr[hashValue]->next;
+            rootArr[hashValue]->next = p;
+        }
+    }
+    totalCount++;
+}
+
+#endif
+
+
+
+ex1.cpp
+
+#include <iostream>
+#include <cstdlib>
+#include <time.h>
+#include "Student.h"
+#include "Teacher.h"
+#include "Hashset.h"
+using namespace std;
+
+//#define LARGE_AMOUNT
+
+#ifdef LARGE_AMOUNT
+#define LOOP_COUNT 40000
+#else
+#define LOOP_COUNT 40
+#endif
+
+int main()
+{
+	cout << "Student Section:" << endl;
+	{
+		clock_t startTime, endTime;
+		startTime = clock();
+		Hashset<Student, StudentHash, StudentEqual> shs;
+		int idForLaterOperation;
+		for (int i = 0, lastId = 0; i < LOOP_COUNT; i++)
+		{
+			Student *s = new Student;
+			s->id = lastId + 1 + (rand() & 0xF);
+			lastId = s->id;
+			s->age = 20;
+			s->sex = (s->id & 1) ? true : false;
+			shs.insert(s);
+			if (i == LOOP_COUNT >> 1)
+				idForLaterOperation = s->id;
+		}
+		endTime = clock();
+
+#ifndef LARGE_AMOUNT
+		shs.showInfo(true);
+#else
+		shs.showInfo(false);
+#endif
+
+		Student *stu = new Student;
+		stu->id = idForLaterOperation;
+		cout << "Time cost: " << endTime - startTime << endl;
+		Student *s = shs.find(*stu);
+		cout << "Find by ID: " << idForLaterOperation << ", age: " << s->age << ", sex: " << (s->sex ? 'M' : 'F') << endl;
+		shs.remove(*stu);
+		cout << "After removing by ID: " << idForLaterOperation << endl;
+		shs.showInfo(false);
+	}
+	//---------------------------------------------
+	cout << "\n\nTeacher Section:" << endl;
+	//---------------------------------------------
+	{
+		clock_t startTime, endTime;
+		startTime = clock();
+		Hashset<Teacher, TeacherHash, TeacherEqual> shs;
+		int idForLaterOperation;
+		for (int i = 0, lastId = 0; i < LOOP_COUNT; i++)
+		{
+			Teacher *s = new Teacher;
+			s->id = lastId + 1 + (rand() & 0xF);
+			lastId = s->id;
+			s->age = 20;
+			s->sex = (s->id & 1) ? true : false;
+			shs.insert(s);
+			if (i == LOOP_COUNT >> 1)
+				idForLaterOperation = s->id;
+		}
+		endTime = clock();
+
+#ifndef LARGE_AMOUNT
+		shs.showInfo(true);
+#else
+		shs.showInfo(false);
+#endif
+
+		Teacher *stu = new Teacher;
+		stu->id = idForLaterOperation;
+		cout << "Time cost: " << endTime - startTime << endl;
+		Teacher *s = shs.find(*stu);
+		cout << "Find by ID: " << idForLaterOperation << ", age: " << s->age << ", sex: " << (s->sex ? 'M' : 'F') << endl;
+		shs.remove(*stu);
+		cout << "After removing by ID: " << idForLaterOperation << endl;
+		shs.showInfo(false);
+	}
+	return 0;
+}
+
+
+Teacher.h
+
+
+#ifndef _TEACHER_H
+#define _TEACHER_H
+
+#include <iostream>
+using namespace std;
+
+struct Teacher
+{
+	int id;
+	int age;
+	bool sex;
+	char name[64];
+};
+
+ostream &operator<<(ostream &out, Teacher &s);
+
+class TeacherHash
+{
+public:
+	int operator()(Teacher &s);
+};
+
+class TeacherEqual
+{
+public:
+	bool operator()(Teacher &s1, Teacher &s2);
+};
+
+#endif
+
+
+Teacher.cpp
+
+
+#include "Teacher.h"
+#include <iostream>
+using namespace std;
+
+ostream &operator<<(ostream &out, Teacher &s)
+{
+	out << s.id;
+	return out;
+}
+
+int TeacherHash::operator()(Teacher &s)
+{
+	return s.id;
+}
+
+bool TeacherEqual::operator()(Teacher &s1, Teacher &s2)
+{
+	return s1.id == s2.id;
+}
+
+
+Student.h
+
+
+#ifndef _STUDENT_H
+#define _STUDENT_H
+
+#include <iostream>
+using namespace std;
+
+struct Student
+{
+	int id;
+	int age;
+	bool sex;
+	char name[64];
+};
+
+ostream &operator<<(ostream &out, Student &s);
+
+class StudentHash
+{
+public:
+	int operator()(Student &s);
+};
+
+class StudentEqual
+{
+public:
+	bool operator()(Student &s1, Student &s2);
+};
+
+#endif
+
+
+
+
+Student.cpp
+
+
+#include "Student.h"
+#include <iostream>
+using namespace std;
+
+ostream &operator<<(ostream &out, Student &s)
+{
+	out << s.id;
+	return out;
+}
+
+int StudentHash::operator()(Student &s)
+{
+	return s.id;
+}
+
+bool StudentEqual::operator()(Student &s1, Student &s2)
+{
+	return s1.id == s2.id;
+}
+

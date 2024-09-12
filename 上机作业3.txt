@@ -1,0 +1,411 @@
+上机作业3
+
+
+
+
+拼接字符串
+
+#include <iostream>
+using namespace std;
+
+
+int main() {
+	string a;
+	cout << "请输入第一个字符串：";
+	cin >> a;
+	string b;
+	cout << "请输入第二个字符串：";
+	cin >> b;
+	int n,x=0,y=0;
+	for (x; a[x] != '\0'; x++) {
+
+	}
+	for (y; b[y] != '\0'; y++) {
+
+	}
+	n = x+y;
+	char (*c)[1];
+	c = new char[n][1];
+	delete c;
+	for (int i = 0; i < n; i++) {
+		if (i < x) {
+			c[i][1] = a[i];
+		}
+		if (i >=x&&i<n) {
+			c[i][1] = b[i - x];
+		}
+	}
+	cout << "拼接后的字符串为：";
+	for (int i = 0; i < n; i++) {
+		cout << c[i][1];
+	}
+	return 0;
+}
+
+
+
+
+
+搜索字符串
+
+
+#include <iostream>
+using namespace std;
+
+
+int main() {
+	string a;
+	cout << "请输入较长字符串：";
+	cin >> a;
+	string b;
+	cout << "请输入较短字符串：";
+	cin >> b;
+	int x = 0;
+	for (x; b[x] != '\0'; x++) {};
+	int y = 0;
+	for (y; b[y] != '\0'; y++) {};
+	char(*q)[1];
+	q = new char[y][1];
+	delete q;
+	for (int j = 0; j < y; j++) {
+		q[j][1] = b[j];
+	}
+	for (int i = 0; i < x - y+1; i++) {
+		char(*p)[1];
+		p = new char[y][1];
+		delete p;
+		for (int j = 0; j < y; j++) {
+			p[j][1] = a[i + j];
+		}
+		int n=0;
+		for (int m = 0; m < y; m++) {
+				if(p[m][1] == q[m][1] || (p[m][1]+32) ==( q[m][1]+0)|| (p[m][1] - 32) == (q[m][1] + 0))
+				n++;
+		}
+		if (n == y) {
+			cout << "Yes";
+				break;
+		}
+		if (i == x - y) {
+			cout << "No";
+			break;
+		}
+	}
+	return 0;
+}
+
+
+选做二
+
+
+ex1.cpp
+
+#include <iostream>
+#include <cstdlib>
+#include <time.h>
+#include "Student.h"
+#include "StudentHashset.h"
+using namespace std;
+
+#define LARGE_AMOUNT
+
+#ifdef LARGE_AMOUNT
+#define LOOP_COUNT 40000
+#else
+#define LOOP_COUNT 40
+#endif
+
+int main()
+{
+	clock_t startTime, endTime;
+	startTime = clock();
+	StudentHashset shs;
+	int idForLaterOperation;
+	for (int i = 0, lastId = 0; i < LOOP_COUNT; i++)
+	{
+		Student *s = new Student;
+		s->id = lastId + 1 + (rand() & 0xF);	//rand() & 0xF 得到0-15之间的随机数，即后一学生的ID比前一学生的ID增加量为1-16之间的随机数
+		lastId = s->id;
+		s->age = 20;
+		s->sex = (s->id & 1) ? true : false;
+		shs.insert(s);
+		if (i == LOOP_COUNT >> 1)	//LOOP_COUNT >> 1 得到总循环次数的一半，即循环执行到某一轮，把这一轮的学生ID记下来，用于后续测试操作
+			idForLaterOperation = s->id;
+	}
+	endTime = clock();
+
+#ifndef LARGE_AMOUNT
+	shs.showInfo(true);
+#else
+	shs.showInfo(false);
+#endif
+
+	Student *stu = new Student;
+	stu->id = idForLaterOperation;
+	cout << "Time cost: " << endTime - startTime << endl;
+	Student *s = shs.find(*stu);
+	cout << "Find by ID: " << idForLaterOperation << ", age: " << s->age << ", sex: " << (s->sex ? 'M' : 'F') << endl;
+	shs.remove(*stu);
+	cout << "After removing by ID: " << idForLaterOperation << endl;
+	shs.showInfo(false);
+	return 0;
+}
+
+
+
+
+
+StudentHashset.h
+
+
+#include "Student.h"
+
+#ifndef _STUDENT_HASHSET_H
+#define _STUDENT_HASHSET_H
+
+class StudentHashset
+{
+public:
+	StudentHashset();
+	~StudentHashset();
+	void insert(Student *);
+	void remove(Student &);
+	Student *find(Student &);
+	void showInfo(bool);
+
+private:
+	Student **rootArr;	//根数组
+	int rootCapacity;	//根数组容量
+	int totalCount;		//整个容器中容纳的学生元素个数
+	void expandRoot();
+
+	const int INITIAL_ROOT_CAPACITY = 16;
+};
+
+#endif
+
+
+
+
+StudentHashset.cpp
+
+
+#include "StudentHashset.h"
+#include <iostream>
+
+StudentHashset::StudentHashset()
+{
+    rootCapacity = INITIAL_ROOT_CAPACITY;
+    rootArr = new Student * [rootCapacity];
+    for (int i = 0; i < rootCapacity; i++)
+        rootArr[i] = nullptr;
+    totalCount = 0;
+}
+
+StudentHashset::~StudentHashset()
+{
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        Student* p = rootArr[i], * q;
+        while (p != nullptr)
+        {
+            q = p;
+            p = p->next;
+            delete q;
+        }
+    }
+    delete[] rootArr;
+}
+
+//为避免容器中出现太长的链表，影响查找效率，
+//当容器中元素总数超过了根数组容量，就要调用本函数对根数组扩容，
+//扩容后，所有元素的哈希值发生改变，需要全部重新计算哈希值并插入相应位置的链表中
+void StudentHashset::expandRoot()
+{
+    Student** oldRootArr = rootArr;
+    int oldRootCapacity = rootCapacity;
+    rootCapacity <<= 1;
+    rootArr = new Student * [rootCapacity];
+    for (int i = 0; i < rootCapacity; i++)
+        rootArr[i] = nullptr;
+    for (int i = 0; i < oldRootCapacity; i++)
+    {
+        Student* p = oldRootArr[i];
+        while (p)
+        {
+            Student* pOldNext = p->next;
+            int hashValue = studentHash(*p) % rootCapacity;
+            p->next = rootArr[hashValue];
+            rootArr[hashValue] = p;
+            p = pOldNext;
+        }
+    }
+    delete[] oldRootArr;
+}
+
+//插入新元素
+void StudentHashset::insert(Student* s)
+{
+    //如果之前元素数量已经与根数组容量相同，再插入就要超过了，需要调用expandRoot()对根数组扩容并重整
+    if (totalCount >= rootCapacity)
+        expandRoot();
+    int hashValue = studentHash(*s) % rootCapacity;
+    //请填写程序
+    //计算哈希值后，找到自己在根数组中的对应元素（链表头指针），然后怎么插入最简便？放在头还是尾？
+    if (rootArr[hashValue] == nullptr) {
+        rootArr[hashValue] = s;
+        rootArr[hashValue]->next = nullptr;
+    }
+    else {
+        if (rootArr[hashValue]->next != nullptr) {
+            s->next = rootArr[hashValue]->next;
+            rootArr[hashValue]->next = s;
+        }
+        if (rootArr[hashValue]->next == nullptr) {
+            rootArr[hashValue]->next = s;
+            s->next = nullptr;
+        }
+    }
+    totalCount++;
+}
+
+//根据参数s，找出容器中的相同元素，并从容器中删除
+//注意：有可能容器中并不存在与s相同的元素，找不到忽略即可
+void StudentHashset::remove(Student& s)
+{
+    //计算哈希值，找到自己在根数组中的对应元素（链表头指针）
+    int hashValue = studentHash(s) % rootCapacity;
+    Student* p = rootArr[hashValue];
+    if (p == nullptr)
+    {
+        //请填写程序
+        //头指针为空意味着什么？需要怎么做？
+        std::cout << "不存在相同的元素";
+    }
+    else if (studentEqual(*p, s))
+    {
+        //请填写程序
+        //头指针指向的元素（即首元素）就是要找的，需要怎么做？
+        rootArr[hashValue] = rootArr[hashValue]->next;
+        delete p;
+        totalCount--;
+    }
+    else
+    {
+        //请填写程序
+        //以上两个分支都不成立才执行至此，意味着要找的元素不是链表首元素
+        //怎么找到并从链表中删除？注意有可能找不到，如何应对？
+        while (p->next != nullptr) {
+            if (studentEqual(*(p->next), s)) {
+                delete p->next;
+                p->next = (p->next)->next;
+                totalCount--;
+                break;
+            }
+            p = p->next;
+        }
+    }
+}
+
+//根据参数s，找出容器中的相同元素
+//注意：有可能容器中并不存在与s相同的元素，找不到返回nullptr即可
+Student* StudentHashset::find(Student& s)
+{
+    //计算哈希值，找到自己在根数组中的对应元素（链表头指针）
+    int hashValue = studentHash(s) % rootCapacity;
+    Student* p = rootArr[hashValue];
+    //请填写程序
+    if (p != nullptr) {
+        while (p) {
+            if (studentEqual(*p, s)) {
+                return p;
+                break;
+            }
+            p = p->next;
+            if (p == nullptr) {
+                return nullptr;
+            }
+        }
+    }
+    else return nullptr;
+}
+
+void StudentHashset::showInfo(bool showAllDetails)
+{
+    using namespace std;
+    cout << "Hashset Status:" << endl
+        << "Root array capacity: " << rootCapacity << endl
+        << "Total element count: " << totalCount << endl;
+    if (!showAllDetails)
+        return;
+    cout << endl
+        << "All Elements:" << endl;
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        cout << '[' << i << "] --> ";
+        Student* p = rootArr[i];
+        while (p)
+        {
+            studentPrint(*p);
+            cout << " --> ";
+            p = p->next;
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+
+
+
+Student.h
+
+
+#ifndef _STUDENT_H
+#define _STUDENT_H
+
+struct Student
+{
+	int id;
+	int age;
+	bool sex;
+	char name[64];
+	Student *next;
+};
+
+void studentPrint(Student &s);
+int studentHash(Student &s);
+bool studentEqual(Student &s1, Student &s2);
+
+#endif
+
+
+
+
+Student.cpp
+
+
+
+#include "Student.h"
+#include <iostream>
+using namespace std;
+
+void studentPrint(Student &s)
+{
+	cout << s.id;
+}
+
+int studentHash(Student &s)
+{
+	return s.id;
+}
+
+bool studentEqual(Student &s1, Student &s2)
+{
+	return s1.id == s2.id;
+}
+
+
+
+
+

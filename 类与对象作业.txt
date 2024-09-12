@@ -1,0 +1,185 @@
+main.cpp
+#include <iostream>
+#include "Parallelogram.h"
+#include "Rectangle.h"
+#include "Triangle.h"
+
+using namespace std;
+
+int main()
+{
+	char choice = 'a';
+	while (choice != 'd')
+	{
+		cout << "Please input your choice:" << endl
+			 << "(a) Triangle" << endl
+			 << "(b) Rectangle" << endl
+			 << "(c) Parallelogram" << endl
+			 << "(d) Quit" << endl;
+
+		cin >> choice;
+		if (choice == 'a')
+		{
+			int lineNum;
+			cout << "Please input number of lines: ";
+			cin >> lineNum;
+			Triangle t(lineNum);
+			t.draw();
+		}
+		else if (choice == 'b')
+		{
+			int lineNum, width;
+			cout << "Please input number of lines: ";
+			cin >> lineNum;
+			cout << "Please input width: ";
+			cin >> width;
+			Rectangle r(lineNum, width);
+			r.draw();
+		}
+		else if (choice == 'c')
+		{
+			int lineNum, width;
+			cout << "Please input number of lines: ";
+			cin >> lineNum;
+			cout << "Please input width: ";
+			cin >> width;
+			Parallelogram p(lineNum, width);
+			p.draw();
+		}
+		else if (choice == 'd')
+		{
+			cout << "Bye!" << endl;
+			break;
+		}
+		else
+		{
+			cout << "Wrong choince!" << endl;
+		}
+		cout << endl;
+	}
+
+	return 0;
+}
+
+
+
+Triangle.cpp
+#include <iostream>
+#include "Triangle.h"
+using namespace std;
+Triangle::Triangle(int lineNum) {
+	l = lineNum;
+}
+void Triangle::draw() {
+	for (int i = 1; i <= l; i++)
+	{
+		int x = 1;
+		while (x <= l - i)
+		{
+			x++;
+			cout << " ";
+		}
+		for (int j = 1; j <= 2 * i - 1; j++)
+		{
+			cout << "*";
+		}
+		cout << endl;
+	}
+	cout << "2023302111120 舒俊杰" << endl;
+}
+
+
+
+
+Triangle.h
+#include <iostream>
+class Triangle {
+public:
+	Triangle(int lineNum);
+	void draw();
+private:
+	int l;
+};
+
+
+
+
+
+
+Rectangle.cpp
+#include <iostream>
+#include "Rectangle.h"
+using namespace std;
+Rectangle::Rectangle(int lineNum, int width){
+	l = lineNum;
+	w = width;
+}
+void Rectangle::draw() {
+	for (int i = 1; i <= l; i++)
+	{
+		for (int j = 1; j <= w; j++)
+		{
+			cout << "*";
+		}
+		cout << endl;
+	}
+	cout << "2023302111120 舒俊杰" << endl;
+}
+
+
+
+
+
+
+Rectangle.h
+#include <iostream>
+class Rectangle {
+public:
+	Rectangle(int lineNum, int width);
+	void draw();
+private:
+	int l, w;
+};
+
+
+
+
+Parallelogram.cpp
+#include <iostream>
+#include "Parallelogram.h"
+using namespace std;
+Parallelogram::Parallelogram(int lineNum, int width) {
+	l = lineNum;
+	w = width;
+}
+void Parallelogram::draw(){
+	for (int i = 1; i <= l; i++)
+	{
+		int x = 1;
+		while (x <= l - i)
+		{
+			x++;
+			cout << " ";
+		}
+		for (int j = 1; j <= w; j++)
+		{
+			cout << "*";
+		}
+		cout << endl;
+	}
+	cout << "2023302111120 舒俊杰" << endl;
+}
+
+
+
+
+
+Parallelogram.h
+#include <iostream>
+class Parallelogram {
+public:
+	Parallelogram(int lineNum, int width);
+	void draw();
+private:
+	int l, w;
+};

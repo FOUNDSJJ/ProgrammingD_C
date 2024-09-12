@@ -1,0 +1,424 @@
+上机作业1
+# include < iostream > 
+using namespace std ;
+int main() 
+{
+cout<< "Hello! \n"; 
+cout<< "Welcome to c+ + ! \n"; return 0;
+}
+
+
+
+
+上机作业2
+#include <iostream>
+using namespace std;
+int main()
+{
+	int i, s;
+	i = 1;
+	s = 0;
+	do {
+		s =s+ i;
+		i++;
+	} while (i <= 10);
+	cout << "sum=" << s << endl;
+	return 0;
+}
+
+#include <iostream>
+using namespace std;
+int main()
+{
+for (int i=1,i<=10,i++)
+{
+s=0;
+s=s+i
+}
+	cout << "sum=" << s << endl;
+	return 0;
+}
+
+
+
+
+上机作业3
+#include <iostream>
+using namespace std;
+int main()
+{
+	char a;
+	int S;
+	cout << "圆形=y" << endl;
+	cout << "长方形=c" << endl;
+	cout << "正方形=z" << endl;
+	cout << "请输入图形：" ;
+	cin >> a  ;
+	if (a == 'y') {
+		float  r;
+		cout << "请输入半径r:";
+		cin >> r;
+		cout << endl;
+		S = 3.14 * r * r;
+		cout << "面积是" << S << endl;
+	}
+	if (a == 'c') {
+		float  c,k;
+		cout << "请输入长:";
+		cin >> c;
+		cout << endl;
+		cout << "请输入宽:";
+		cin >> k;
+		cout << endl;
+		S = k*c;
+		cout << "面积是" << S << endl;
+	}
+	if (a == 'z') {
+		float  b;
+		cout << "请输入边长:";
+		cin >> b;
+		cout << endl;
+		S = b*b;
+		cout << "面积是" << S << endl;
+	}
+	return 0;
+}
+
+
+
+上机作业4
+#include <iostream>
+using namespace std;
+int main()
+{for (int i=1;i<=9;i++)
+{
+	for (int n = 1; n <= i; n++) {
+		int s;
+		s = i * n;
+		cout << n << "乘" << i << "等于" << s << " ";
+	}
+	cout << endl;
+	}
+	return 0;
+}
+
+
+
+
+上机作业5
+#include <iostream>
+using namespace std;
+int main()
+{
+	int a,i, j, k,x,y,z;
+	y = 0;
+	z = 0;
+	cout << "请输入一个4位数：" ;
+	cin >> a;
+	i = a / 1000;
+	x = a % 10;
+	j = (a / 100) % 10;
+	k = (a / 10) % 10;
+	if (i == 1) y++;
+	if (j == 3) y++;
+	if (k == 5) y++;
+	if (x == 7) y++;
+	if (i == 3 || i == 5 || i == 7) z++;
+	if (j == 1 || j == 5 || j == 7) z++;
+	if (k == 1 || k == 3 || k == 7) z++;
+	if (x == 1 || x == 3 || x == 5) z++;
+	cout << y << "A" << z << "B" << endl;
+	return 0;
+}
+
+
+
+
+
+上机作业6
+#include <iostream>
+using namespace std;
+int main()
+{
+	float F(float);
+	float a,C;
+	cout << "请输入华氏温度：";
+	cin >> a;
+	C = F(a);
+	cout << "摄氏温度是：" << C<<"摄氏度";
+	return 0;
+}
+float F(float x) {
+	float C;
+	C = (x - 32) * 5 / 9;
+	return C;
+}
+
+
+
+上机作业7
+#include <iostream>
+using namespace std;
+int Maxl(int a, int b) {
+	int c = a > b ? a : b;
+	return c;
+}
+int Maxl(int a, int b, int c) {
+	int d = a >= b ? a : b;
+	d = c >= d ? c : d;
+	return d;
+}
+double Maxl(double a, double b) {
+	double c = a >= b ? a : b;
+	return c;
+}
+int main() {
+	int a,h;
+	cout << "请输入你比较数字的个数："<<endl;
+	cin >> a;
+		cout << "请输入你比较数的类型：整数为1，双精数为2"<<endl;
+		cin >> h;
+		int k;
+		if(a == 2 && h == 1)
+		{
+			int i, j;
+			cin >> i >> j;
+			k = Maxl(i, j);
+}
+	if(a == 2 && h == 2)
+	{
+		double i, j;
+		cin >> i >> j;
+		k = Maxl(i, j);
+}
+	if(a == 3 && h == 1)
+	{
+		int i, j, l;
+		cin >> i >> j >> l;
+		k = Maxl(i, j, l);
+}
+	cout << "最大的是：" << k;
+	return 0;
+}
+
+
+
+
+上机作业8
+#include <iostream>
+using namespace std;
+int F(int n) {
+	int a;
+	bool d;
+	d = n == 1 || n == 2;
+	if (d==1)
+		a = 1;
+	else
+	 a= F(n - 1) + F(n - 2);
+	 return a;
+}
+int main()
+{
+	int n;
+	cout << "请输入数列个数：";
+	cin >> n;
+	cout << "1" << " " << "1" << " ";
+	for (int i = 3; i <= n; i++) {
+		cout << F(i) << " ";
+	}
+	return 0;
+}
+
+
+
+上机作业9
+#include <iostream>
+using namespace std;
+int t(int c,int a)
+{
+	int  d, e, f, g;
+	d = c / 1000;
+	g = c % 10;
+	e = (c / 100) % 10;
+	f = (c / 10) % 10;
+	int y=0;
+	int  i, j, k, x;
+	i = a / 1000;
+	x = a % 10;
+	j = (a / 100) % 10;
+	k = (a / 10) % 10;
+	if (i == d) y++;
+	if (j == e) y++;
+	if (k == f) y++;
+	if (x == g) y++;
+	return y;
+}
+int main()
+{
+	int p;
+	cout << "请输入谜底数字（4位数）：";
+	cin >> p;
+	int w = 0;
+	int y = 0;
+	do {
+		int n;
+		cout << "请输入一个4位数：";
+		cin >> n;
+		y = t(p,n);
+		if (y != 4) {
+			cout << "错误" << endl;
+			w++;
+		}
+		else cout << "正确" << endl;
+	} while (y != 4);
+	cout <<"错误次数为："<< w;
+	return 0;
+}
+
+上机作业10
+#include <iostream>
+using namespace std;
+struct time {
+	string year;
+	string month;
+	string day;
+	string hour;
+	string minute;
+	string second;
+};
+
+int main()
+{
+	cout << "请依次输入年、月、日、小时、分、秒" << endl;
+	string year;
+	string month ;
+	string day ;
+	string hour ;
+	string minute ;
+	string second ;
+	cin >> year >> month >> day >> hour >> minute >> second;
+	cout << year << "年" << month << "月" << day << "日" << hour << "点" << minute << "分" << second << "秒" << endl;
+	return 0;
+}
+
+
+
+
+上机作业11
+#include <iostream>
+using namespace std;
+void readline() {
+	char a;
+	int i = 0;
+	do {
+		a = getchar();
+		if (i = 0 && a >= 97) {
+			a = a - 32;
+			cout << a;
+		}
+		if (i != 0 && a >= 97) cout << a;
+		if (i== 0 && a <= 97) cout << a;
+		if (i != 0 && a <= 97) {
+			a = a + 32;
+			cout << a;
+		}
+
+	}
+}
+
+
+
+
+上机作业12
+#include <iostream>
+#include<string>
+using namespace std;
+int main()
+{
+	int newword = 0;
+	char ch[100000];
+	int j = 0;
+	cout << "put in your words:" << endl;
+	while (1)
+	{
+		ch[j] = getchar();
+		if (ch[j ]== '.')
+		{
+			break;
+		}
+		j++;
+	}
+		for (int i = 0; i <= j; i++)
+		{
+			if (newword == 0)
+			{
+				if (ch[i] >= 'a' && ch[i] <= 'z')
+				{
+					ch[i] -= 32;
+					newword = 1;
+					cout << ch[i];
+				}
+			}
+			else  if (newword == 1)
+			{
+				if (ch[i] >= 'A' && ch[i] <= 'Z')
+				{
+					ch[i] += 32;
+				}
+				if (ch[i] == ' ')
+				{
+					newword = 0;
+				}
+				putchar(ch[i]);
+			}
+
+		}
+
+}
+
+
+
+
+#include <iostream>
+#include<string>
+using namespace std;
+int main()
+{
+	int newword = 0;
+	char ch[100000];
+	int j = 0;
+	cout << "put in your words:" << endl;
+	while (1)
+	{
+		ch[j] = getchar();
+		if (ch[j] == '.')
+		{
+			cout << ".";
+			break;
+		}
+		j++;
+	}
+	for (int i = 0; i <= j; i++)
+	{
+		if (i == 0 && ch[j] <= 'z' && ch[j] >= 'a')
+		{
+			cout << (ch[j] + 32);
+			i++;
+		}
+		if (i != 0 && ch[j] <= 'Z' && ch[j] >= 'A')
+		{
+			cout << (ch[j] - 32);
+			i++;
+		}
+		if (ch[j] == ' ')
+		{
+			cout << ch[j];
+			i = 0;
+		}
+		else
+		{
+			cout << ch[j];
+			i++;
+		}
+	}
+}

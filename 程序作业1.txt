@@ -1,0 +1,133 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	char answer = 'a';
+	cout << "?" << endl;
+	cout << "?" << endl;
+	cin >> answer;
+	cout << "结果是：" << "" << endl;
+	
+	return 0;
+}
+
+
+
+
+
+
+
+作业3
+#include <iostream>
+using namespace std;
+int main()
+{
+	char s;
+	cout << "Please put your choice:" << endl;
+	cout << "(a) Tringle " << endl;
+	cout << "(b) Rectangle " << endl;
+	cout << "(c) Parallelogram " << endl;
+	cout << "(d) Quit " << endl;
+	cin >> s;
+	if (s != 'd')
+	{
+		while (s != 'd')
+		{
+			int n, y;
+			cout << "Please input number of lines:";
+			cin >> n;
+			{
+				if (s == 'a')
+					for (int i = 1; i <= n; i++)
+					{
+						int x = 1;
+						while (x <= n - i)
+						{
+							x++;
+							cout << " ";
+						}
+						for (int j = 1; j <= 2 * i - 1; j++)
+						{
+							cout << "*";
+						}
+						cout << endl;
+					}
+				if (s == 'b')
+				{
+					cout << "Please input width:";
+					cin >> y;
+					for (int i = 1; i <= n; i++)
+					{
+						for (int j = 1; j <= y; j++)
+						{
+							cout << "*";
+						}
+						cout << endl;
+					}
+				}
+				if (s == 'c')
+				{
+					cout << "Please input width:";
+					cin >> y;
+					for (int i = 1; i <= n; i++)
+					{
+						int x = 1;
+						while (x <= n - i)
+						{
+							x++;
+							cout << " ";
+						}
+						for (int j = 1; j <= y; j++)
+						{
+							cout << "*";
+						}
+						cout << endl;
+					}
+				}
+				cout << "Please put your choice:" << endl;
+				cout << "(a) Tringle " << endl;
+				cout << "(b) Rectangle " << endl;
+				cout << "(c) Parallelogram " << endl;
+				cout << "(d) Quit " << endl;
+				cin >> s;
+			}
+		}
+	}
+		if (s == 'd')
+		{
+			cout << "Bye!" << endl;
+		}
+		cout << "2023302111120舒俊杰" << endl;
+	return 0;
+}
+
+
+
+
+
+求值
+#include <iostream>
+using namespace std;
+double  F(double x,double n ) {
+	double a = 1;
+	for (int i = 1; i <= n; i++)
+	{
+		a = a * x;
+	}
+	return a;
+}
+int main()
+{
+	double x, s=0;
+	cout << "请输入x的值" << endl;
+	cin >> x;
+	int i = 1, n = 1;
+	do
+	{
+		s+= F(x, n) / n * i;
+		i = 0 - i;
+		n = n + 2;
+	} while ((F(x, n) / n) >=1e-10);
+	cout << s;
+	return 0;
+}

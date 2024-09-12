@@ -1,0 +1,209 @@
+作业8
+
+
+array.cpp
+
+
+#include <iostream>
+#include <cstdlib>
+#include <time.h>
+using namespace std;
+
+//#define LARGE_AMOUNT
+
+#ifdef LARGE_AMOUNT
+#define LOOP_COUNT 40000
+#else
+#define LOOP_COUNT 40
+#endif
+
+struct Student
+{
+	int id;
+	int age;
+	bool sex;
+	char name[64];
+};
+
+Student *arr = nullptr;
+int arrSize = 0;	//数组中元素个数
+int arrCapacity = 0;	//数组容量
+
+//当原先的数组已经塞满，就需要调用本函数扩容，以容纳继续插入的元素
+void expandArray()
+{
+	if (arrCapacity == 0)
+	{
+		arrCapacity = 1;
+		arr = new Student[arrCapacity];
+	}
+	else
+	{
+		int newCapacity = arrCapacity * 2;
+		Student *newArr = new Student[newCapacity];
+		//请填写程序
+		//上面已新建两倍容量的数组，newArr指向它
+		//新数组仍为空，arr仍指向旧的数组，请考虑要做什么
+		for (int i = 0; i < arrCapacity; i++) {
+			newArr[i] = arr[i];
+		}
+		delete arr;
+		arr = newArr;
+		arrCapacity = newCapacity;
+	}
+}
+
+void addStudentToArray(Student *s)
+{
+	if (arrSize == arrCapacity)
+		expandArray();
+	int index;
+	for (index = 0; index < arrSize; index++)
+		if (arr[index].id > s->id)
+			break;
+	//请填写程序
+	//如果数组已满，上面已经完成扩容，所以此处不必担心容量问题
+	//现有数组已排好序，index表示什么？
+	//找到插入位置后，还要把后面的所有元素向后拉一格，为s腾出格子
+	for (int i= arrSize; i > index; i--) {
+		arr[i] = arr[i-1];
+	}
+	arr[index] = *s;
+	arrSize++;
+}
+
+int main()
+{
+	clock_t startTime, endTime;
+	startTime = clock();
+	for (int i = 0; i < LOOP_COUNT; i++)
+	{
+		Student *s = new Student;
+		s->id = rand();
+		s->age = 20;
+		addStudentToArray(s);
+		delete s;
+	}
+	endTime = clock();
+
+#ifndef LARGE_AMOUNT
+	for (int i = 0; i < arrSize; i++)
+		cout << arr[i].id << " --> ";
+	cout << endl;
+#endif
+
+	delete[] arr;
+
+	cout << "Array capacity: " << arrCapacity << endl
+		 << "Array size: " << arrSize << endl;
+	cout << "Time cost: " << endTime - startTime << endl;
+	cout << "舒俊杰 2023302111120";
+	return 0;
+}
+
+
+
+
+list.cpp
+
+
+
+
+#include <iostream>
+#include <cstdlib>
+#include <time.h>
+using namespace std;
+
+//#define LARGE_AMOUNT
+
+#ifdef LARGE_AMOUNT
+#define LOOP_COUNT 40000
+#else
+#define LOOP_COUNT 40
+#endif
+
+struct Student
+{
+	int id;
+	bool sex;
+	char name[64];
+	Student *next;
+};
+
+Student *head = nullptr;
+
+void addStudentToList(Student *s)
+{
+	if (head == nullptr)
+	{
+		head = s;
+		s->next = nullptr;
+	}
+	else if (s->id <= head->id)
+	{
+		s->next = head;
+		head = s;
+	}
+	else
+	{
+		Student *f1 = head->next, *f2 = head;
+		//请填写程序
+		//以上两个分支都不成立，说明head指向某个元素，且s的id大于头元素id
+		//现有数组已排好序，s应该插入到什么位置，才能维持顺序？
+		//f1和f2分别指向链表中两个相邻的元素，这对于“插入”操作有什么帮助？
+		if (f1 == nullptr) {
+			f2->next = s;
+			s->next = nullptr;
+
+		}
+		else {
+			while (s->id >= f2->id) {
+				if (f1==nullptr) {
+					f1 = s;
+					s->next = nullptr;
+					break;
+				}
+				if (s->id <= f1->id) {
+					f2->next = s;
+					s->next = f1;
+					break;
+				}
+				else {
+					f2 = f1;
+					f1 = f1->next;
+				}
+			}
+		}
+	}
+}
+
+int main()
+{
+	clock_t startTime, endTime;
+	startTime = clock();
+	for (int i = 0; i < LOOP_COUNT; i++)
+	{
+		Student *s = new Student;
+		s->id = rand();
+		addStudentToList(s);
+	}
+	endTime = clock();
+
+#ifndef LARGE_AMOUNT
+	for (Student *p = head; p != nullptr; p = p->next)
+		cout << p->id << " --> ";
+	cout << endl;
+#endif
+
+	Student *q, *p = head;
+	while (p != nullptr)
+	{
+		q = p;
+		p = p->next;
+		delete q;
+	}
+
+	std::cout << "Time cost: " << endTime - startTime << endl;
+	cout << "舒俊杰 2023302111120" << endl;
+	return 0;
+}

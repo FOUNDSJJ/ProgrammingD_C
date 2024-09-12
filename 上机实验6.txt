@@ -1,0 +1,347 @@
+上机实验6
+
+(1)	观察以下程序的输出，注意对输出格式的控制方法。（不需要提交）
+#include < fstream>
+using namespace std;
+#define D(a) T << #a << endl; a
+ofstream T("output.out");
+int main()
+{
+	D(int i = 53;)
+	D(float f = 4700113.141593;)
+	char *s = "Is there any more?";
+	D(T.setf(ios::unitbuf);)
+	D(T.setf(ios::showbase);)
+	D(T.setf(ios::uppercase);)
+	D(T.setf(ios::showpos);)
+	D(T << i << endl;)
+	D(T.setf(ios::hex, ios::basefield);)
+	D(T << i << endl;)
+	D(T.unsetf(ios::uppercase);)
+	D(T.setf(ios::oct, ios::basefield);)
+	D(T << i << endl;)
+	D(T.unsetf(ios::showbase);)
+	D(T.setf(ios::dec, ios::basefield);)
+	D(T.setf(ios::left, ios::adjustfield);)
+	D(T.fill('0');)
+	D(T << "fill char: " << T.fill() << endl;)
+	D(T.width(8);)
+	T << i << endl;
+	D(T.setf(ios::right, ios::adjustfield);)
+	D(T.width(8);)
+	T << i << endl;
+	D(T.setf(ios::internal, ios::adjustfield);)
+	D(T.width(8);)
+	T << i << endl;
+	D(T << i << endl;) //Without width(10)
+
+	D(T.unsetf(ios::showpos);)
+	D(T.setf(ios::showpoint);)
+	D(T << "prec= " << T.precision() << endl;)
+	D(T.setf(ios::scientific, ios::floatfield);)
+	D(T << endl << f << endl;)
+	D(T.setf(ios::fixed, ios::floatfield);)
+	D(T << f << endl;)
+	D(T.setf(0, ios::floatfield);)
+	D(T << f << endl;)
+	D(T.precision(16);)
+	D(T << "prec= " << T.precision() << endl;)
+	D(T << endl << f << endl;)
+	D(T.setf(ios::scientific, ios::floatfield);)
+	D(T << endl << f << endl;)
+	D(T.setf(ios::fixed, ios::floatfield);)
+	D(T << f << endl;)
+	D(T.setf(0, ios::floatfield);)
+	D(T << f << endl;)
+	D(T.width(8);)
+	T << s << endl;
+	D(T.width(36);)
+	T << s << endl;
+	D(T.setf(ios::left, ios::adjustfield);)
+	D(T.width(36);)
+	T << s << endl;
+	D(T.unsetf(ios::showpoint);)
+	D(T.unsetf(ios::unitbuf);)
+}
+
+
+************************************************************************************************************************
+
+(2)	阅读并运行以下程序，领会容器的使用、函数指针的使用，感受专业排序算法的威力。（不需要提交）
+#include <vector>
+#include <algorithm>
+#include <cstdlib>
+#include <time.h>
+#include <iostream>
+using namespace std;
+struct Student {
+	int id;
+	int age;
+	bool sex;
+	char name[64];
+};
+bool compareStudent(Student &s1, Student &s2) {
+	return s1.id < s2.id;
+}
+Student arr[40000];
+int main() {
+	vector<Student> v;
+	clock_t time0, time1, time2, time3;
+	time0 = clock();
+	for (int i = 0; i < 40000; i++) {
+		arr[i].id = rand();
+		arr[i].age = 20;
+		arr[i].sex = (arr[i].id & 1) ? true : false;
+		v.push_back(arr[i]);
+	}
+	time1 = clock();
+	sort(v.begin(), v.end(), compareStudent);
+	time2 = clock();
+	for (int i = 0; i < 39999; i++) {
+		Student tmp;
+		int max = 0;
+		for (int j = 0; j < 39999 - i; j++) {
+			if (!compareStudent(arr[j], arr[max]))
+				max = j;
+		}
+		tmp = arr[39999 - i];
+		arr[39999 - i] = arr[max];
+		arr[max] = tmp;
+	}
+	time3 = clock();
+	cout << "Create and insert: " << time1 - time0 << "ms" << endl;
+	cout << "Sort by vector: " << time2 - time1 << "ms" << endl;
+	cout << "Sort by selection: " << time3 - time2 << "ms" << endl;
+	return 0;
+}
+思考1：如果把compareStudent()改成如下，意味着什么？
+bool compareStudent(Student &s1, Student &s2) {
+	return s1.sex == s2.sex ? s1.id < s2.id : s1.sex < s2.sex;
+}
+思考2：尝试把sort()这一行的compareStudent改造成Lambda表达式。
+
+*************************************************************************************************************************
+(3)	在老师提供的程序中填空，打开老师提供的文本文件，利用multiset容器读入所有姓名，然后按字母顺序输出到另一个文本文件，输出时在每一行前加行号。
+
+
+multiset.cpp
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <set>
+using namespace std;
+
+int main()
+{
+	multiset<string> ms;
+	ifstream inFile("names.txt");
+	ofstream outFile("output.txt");
+	string txtLine;
+	while (getline(inFile, txtLine))
+	{
+		//请填写程序
+		ms.insert(txtLine);
+	}
+	//请填写程序
+	for (multiset<string>::iterator it = ms.begin(); it != ms.end(); it++)
+	{
+		outFile << " 。" << *it << endl;
+	}
+	inFile.close();
+	outFile.close();
+	return 0;
+}
+
+
+
+names.txt
+
+
+Huanzhen Chen
+Mayank Patel
+Claudia Lazarte
+Jimoh Osuolale
+Mona Ahmed
+Nestor Noudeke
+Ralph Mitlohner
+Sanabil yaqoob
+Sumon Das
+Trust Beta
+Alberta Aseye Ama Duhoe
+Jennifer Ball
+Mounir Triki
+Timang rinando
+Assefa Habtemariam
+Danladi Drambi Usman
+Giovanni Gnemi
+James Messo Raude
+Kei Tomimura
+Martyna Glodowska
+Michiko Takagaki
+Rustam Muradov
+Tahar Dob
+Wei Shanqing
+Majid Majidian
+Aditi Mukherji
+Ibrahim Muhammad
+Md Kamal Uddin
+Rachid SMAIL
+Xuan Zhang
+Tiangoua Kone
+Gopal Panda
+Rajan Kumar
+A. S. Venkatesh
+Hao Cheng
+Kyohei Ohga
+Nasiruddin khan
+PIYUSH GUPTA
+Saad Mogren ALmogren
+Stephen Montefort
+Thomas Hauquin
+Yukun Xiao
+George A. Sorial
+Ling-Yan He
+Neslihan Ekinci
+Robert L. Ryan
+Theophile Gnagne
+Anna Schneider
+Alexandru-Ionut Petrisor
+J.A.O. Oyekunle
+Nawee Noon-Anant
+Syed Ariful Haque
+Alex Opoku
+Jian Zhang
+O. O. Olasanmi
+Udosen Idem
+Abdullah Al-Fawwaz
+Elisabetta Giampiccolo
+Irina Chernykh
+Majlinda Mecajj
+Muhammad Riaz
+Qianqin Jiang
+Tarbiat Moderass
+Walter Malagutti Filho
+Chongmin Yang
+Pingping GE
+Ahmad Hassan Ahmad
+Ozge Korkmaz
+Stefano Zedda
+Yang WANG
+Huizhi Zhang
+Mukamwiza Berthilde
+Pollalis Yannis
+Towfik bouchaour
+Yuecun Wang
+Rino de Sagun
+Terry Haydn
+Shuiming Zhang
+Zhaoying Hu
+Adijat Bola Ibrahhem
+Farouk Mselmi
+Jesus Sarol
+Matteo Spada
+TAIWO OWOLABI
+Pravat Kumar Shit
+William T. Comer
+Pradeep Kumar Lal
+William Padgett
+Zohreh Rahbani
+Nicolae ANGHEL
+Amol hekare
+Andres Machicote
+Daniela Ponce
+Filomena Altieri
+Giulianna Pinheiro
+Jamila Yau
+Ke Liu
+Li Dong Liu
+Mathilde Jalving
+Minoru Tanaka
+Nicholas Shannon
+Rehab Badi
+Sandra zribi
+Shail pandher
+UMAR ABDULLAHI
+Yinai Jin
+Zhiheng Huang
+Alan Carter
+Huang Zefeng
+Michel Rautureau
+Sarah Diop
+Amir Hossein Mahvi
+CHAIB Rachid
+Hichem ELEUCH
+Leszek Furman
+Nadia Tanzeem
+Ruiliang Zhang
+Sourav Pal
+Zbigniew Zmudka
+Mattew P. D. Mahindaratne
+David Chau
+Ken-ichi Tanaka
+Qing Zhang
+Germana Sorge
+Karl Abbott
+Emil Petrescu
+Periklis Papadopoulos
+Xiangming Chen
+
+
+**************************************************************************************************************************
+
+(4)	编写程序，实现文件拷贝功能。程序运行时，通过控制台接受用户输入两个参数，即源文件和目标文件，命令格式如下：
+cp.exe source.file destination.file
+提示：
+1）以二进制形式操作文件，对于源文件使用ios_base::_Nocreate方式，表示不新建文件（文件不存在则出错），对于目标文件使用ios_base::_Noreplace方式，表示不覆盖文件（文件已存在则出错）。
+2）循环读取文件时，最后一次读取读到文件尾，通常不会恰好填满缓冲区，可以通过ifstream::gcount()获取刚才读取的字节数。
+3）int main(int argc, char **argv)可以让程序获取用户输入的参数。
+
+
+
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+int main(int argc, char** argv) {
+    if (argc != 3) {
+        cout << "命令格式错误，请输入源文件和目标文件路径。" << endl;
+        return 1;
+    }
+
+    ifstream source(argv[1], ios::binary | ios::in | ios::_Nocreate);
+    if (!source) {
+        cout << "无法打开源文件。" << endl;
+        return 1;
+    }
+
+    ofstream destination(argv[2], ios::binary | ios::out | ios::_Noreplace);
+    if (!destination) {
+        cout << "无法创建目标文件。" << endl;
+        return 1;
+    }
+
+    streamsize bufferSize = 4096;
+    char* buffer = new char[bufferSize];
+
+    source.seekg(0, ios::beg);
+    while (!source.eof()) {
+        source.read(buffer, bufferSize);
+        streamsize bytesRead = source.gcount();
+        destination.write(buffer, bytesRead);
+    }
+
+    delete[] buffer;
+    source.close();
+    destination.close();
+
+    cout << "File copied ex1.obj" << endl;
+
+    return 0;
+}
+
+
+
+

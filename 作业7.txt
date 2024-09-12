@@ -1,0 +1,85 @@
+作业7
+
+
+
+#include <iostream>
+using namespace std;
+
+void replaceFirstChars(char *arr, /*接下来三个参数用指针传递*/char* U, char* L, char* N) {
+	//请填写程序
+	int b = 0, c = 0, d = 0;
+	for (int i = 0; i < 41; i++) {
+		char a = arr[i];
+		if (a >= 'A' && a <= 'Z'&&b==0) {
+			char temp = arr[i];
+			arr[i] = *U;
+			*U = temp;
+			b++;
+		}
+		if (a >= 'a' && a <= 'z' && c == 0) {
+			char temp = arr[i];
+			arr[i] = *L;
+			*L = temp;
+			c++;
+		}
+		if (a >= '0' && a <= '9' && d == 0) {
+			char temp = arr[i];
+			arr[i] = *N;
+			*N = temp;
+			d++;
+		}
+	}
+	cout << "舒俊杰 2023302111120"<<endl;
+}
+
+void replaceFirstChars(char arr[], /*接下来三个参数用引用传递*/char& U, char& L, char& N) {
+	//请填写程序
+	int b = 0, c = 0, d = 0;
+	for (int i = 0; i < 21; i++) {
+		char a = arr[i];
+		if (a >= 'A' && a <= 'Z' && b == 0) {
+			char temp = arr[i];
+			arr[i] = U;
+			U = temp;
+			b++;
+		}
+		if (a >= 'a' && a <= 'z' && c == 0) {
+			char temp = arr[i];
+			arr[i] = L;
+			L = temp;
+			c++;
+		}
+		if (a >= '0' && a <= '9' && d == 0) {
+			char temp = arr[i];
+			arr[i] = N;
+			N = temp;
+			d++;
+		}
+	}
+	cout << "舒俊杰 2023302111120"<<endl;
+}
+
+int main() {
+	char str1[] = "*** The 1st sentence for replacement ***";
+	char str2[] = "*** 2nd Sentence ***";
+
+	char forUpper1 = '+', forLower1 = '-', forNum1 = '#';
+	cout << "Sentence before replacement:\t" << str1 << endl;
+	//请在此处调用replaceFirstChars()函数的指针版本
+	replaceFirstChars(str1,& forUpper1,& forLower1,& forNum1);
+	cout << "Sentence after replacement:\t" << str1 << endl
+		 << "First Uppercase: " << forUpper1 << endl
+		 << "First Lowercase: " << forLower1 << endl
+		 << "First Number: " << forNum1 << endl
+		 << endl;
+
+	char forUpper2 = '+', forLower2 = '-', forNum2 = '#';
+	cout << "Sentence before replacement:\t" << str2 << endl;
+	//请在此处调用replaceFirstChars()函数的引用版本
+	replaceFirstChars(str2, forUpper2, forLower2, forNum2);
+	cout << "Sentence after replacement:\t" << str2 << endl
+		 << "First Uppercase: " << forUpper2 << endl
+		 << "First Lowercase: " << forLower2 << endl
+		 << "First Number: " << forNum2 << endl;
+	return 0;
+}

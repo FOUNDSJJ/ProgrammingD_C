@@ -1,0 +1,349 @@
+作业9
+
+1
+
+main.cpp
+
+#include <iostream>
+#include <fstream>
+#include "MyString.h"
+
+using namespace std;
+
+bool operator>(MyString a, MyString b) {
+	char* ta;
+	ta = a.getString();
+	char ac[64];
+	char* tb;
+	tb = b.getString();
+	char bc[64];
+	for (int i = 0; i <= 64; i++) {
+		if (ta[i] > tb[i] || tb[i] == ' ') return true;
+		if (ta[i] < tb[i] || ta[i] == ' ') return false;
+	}
+}
+
+void MyString::operator= (char a[]) {
+	for (int i = 0; i < 64; i++) {
+		this->c[i]=a[i];
+	}
+}
+
+ostream & operator<<(ostream& cout,MyString a) {
+	cout << a.getString() << endl;
+	return cout;
+}
+
+void sortMyString(MyString arr[], int count)
+{
+	int tmp, max;
+	for (int i = 0; i < count - 1; i++)
+	{
+		max = 0;
+		for (int j = 1; j < count - i; j++)
+		{
+			//上次的作业，这里写的是 if (arr[j].compareTo(arr[max]) > 0)
+			//这次，希望写成如下更为直观的形式
+			//请为 MyString 类重载 > 运算符，返回 bool 值
+			if (arr[j] > arr[max]) {
+				max = j;
+			}
+		}
+		arr[count - 1 - i].exchangeWith(arr[max]);
+	}
+}
+
+int main()
+{
+	ifstream txtFile("names.txt");
+	char txtLine[MyString::CAPACITY];
+	MyString myArr[150];
+	int count = 0;
+	while (txtFile.getline(txtLine, MyString::CAPACITY))
+		//上次的作业，这里写的是 myArr[count++].setString(txtLine)
+		//这次，希望写成如下更为直观的形式
+		//请为 MyString 类重载 = 运算符
+		myArr[count++] = txtLine;
+	txtFile.close();
+	sortMyString(myArr, count);
+	for (int i = 0; i < count; i++)
+		//针对 cout 重载 << 运算符，把下面这行程序改写为
+		cout << myArr[i] << endl;
+	cout << "2023302111120 舒俊杰";
+	return 0;
+}
+
+
+MyString.h
+
+
+#include <iostream>
+
+class MyString
+{
+public:
+	MyString() {
+		c[0] = '\0';
+	}
+	void exchangeWith(MyString &);
+	void operator=(char *);
+	char *getString() {
+		return c;
+	}
+	static const int CAPACITY = 64;
+
+private:
+	char c[CAPACITY];
+};
+
+
+MyString.cpp
+
+#include "MyString.h"
+#include <iostream>
+
+void MyString::exchangeWith(MyString &otherString)
+{
+	for (int i = 0; i < CAPACITY; i++)
+	{
+		char tmp;
+		tmp = c[i];
+		c[i] = otherString.c[i];
+		otherString.c[i] = tmp;
+	}
+}
+
+bool operator>(MyString a, MyString b) {
+	char* ta;
+	ta = a.getString();
+	char ac[64];
+	char* tb;
+	tb = b.getString();
+	char bc[64];
+	for (int i = 0; i <= 64; i++) {
+		if (ta[i] > tb[i] || tb[i] == ' ') return true;
+		if (ta[i] < tb[i] || ta[i] == ' ') return false;
+	}
+}
+
+void MyString::operator= (char a[]) {
+	for (int i = 0; i < 64; i++) {
+		this->c[i]=a[i];
+	}
+}
+
+ostream & operator<<(ostream& cout,MyString a) {
+	cout << a.getString() << endl;
+	return cout;
+}
+
+
+
+2
+
+
+main.cpp
+
+#include <iostream>
+#include "Triangle.h"
+#include "Rectangle.h"
+#include "Parallelogram.h"
+
+using namespace std;
+
+int main()
+{
+	Shape *s;
+	char choice = 'a';
+	while (choice != 'd')
+	{
+		cout << "Please input your choice:" << endl
+			 << "(a) Triangle" << endl
+			 << "(b) Rectangle" << endl
+			 << "(c) Parallelogram" << endl
+			 << "(d) Quit" << endl;
+
+		cin >> choice;
+		if (choice == 'a')
+		{
+			int lineNum;
+			cout << "Please input number of lines: ";
+			cin >> lineNum;
+			s = new Triangle(lineNum);
+			s->draw();
+		}
+		else if (choice == 'b')
+		{
+			int lineNum, width;
+			cout << "Please input number of lines: ";
+			cin >> lineNum;
+			cout << "Please input width: ";
+			cin >> width;
+			s = new Rectangle(lineNum, width);
+			s->draw();
+		}
+		else if (choice == 'c')
+		{
+			int lineNum, width;
+			cout << "Please input number of lines: ";
+			cin >> lineNum;
+			cout << "Please input width: ";
+			cin >> width;
+			s = new Parallelogram(lineNum, width);
+			s->draw();
+		}
+		else if (choice == 'd')
+		{
+			cout << "Bye!" << endl;
+			break;
+		}
+		else
+		{
+			cout << "Wrong choince!" << endl;
+		}
+		cout << endl;
+	}
+
+	return 0;
+}
+
+
+
+Shape.h
+
+#ifndef _SHAPE_H
+#define _SHAPE_H
+
+class Shape
+{
+public:
+    virtual void draw() = 0;
+};
+
+#endif
+
+
+Parallelogram.cpp
+
+
+#include <iostream>
+#include "Parallelogram.h"
+using namespace std;
+Parallelogram::Parallelogram(int lineNum, int width) {
+	l = lineNum;
+	w = width;
+}
+void Parallelogram::draw() {
+	for (int i = 1; i <= l; i++)
+	{
+		int x = 1;
+		while (x <= l - i)
+		{
+			x++;
+			cout << " ";
+		}
+		for (int j = 1; j <= w; j++)
+		{
+			cout << "*";
+		}
+		cout << endl;
+	}
+	cout << "2023302111120 舒俊杰" << endl;
+}
+
+
+
+Parallelogram.h
+
+#include <iostream>
+#include "Shape.h"
+
+class Parallelogram:public Shape {
+public:
+	Parallelogram(int lineNum, int width);
+	virtual void draw();
+private:
+	int l, w;
+};
+
+
+Triangle.cpp
+
+
+#include <iostream>
+#include "Triangle.h"
+using namespace std;
+Triangle::Triangle(int lineNum) {
+	l = lineNum;
+}
+void Triangle::draw() {
+	for (int i = 1; i <= l; i++)
+	{
+		int x = 1;
+		while (x <= l - i)
+		{
+			x++;
+			cout << " ";
+		}
+		for (int j = 1; j <= 2 * i - 1; j++)
+		{
+			cout << "*";
+		}
+		cout << endl;
+	}
+	cout << "2023302111120 舒俊杰" << endl;
+}
+
+
+Triangle.h
+
+#include <iostream>
+#include "Shape.h"
+
+using namespace std;
+
+class Triangle :public Shape {
+public:
+	Triangle(int lineNum);
+	virtual void draw();
+	int l;
+};
+
+
+Rectangle.cpp
+
+
+#include <iostream>
+#include "Rectangle.h"
+using namespace std;
+Rectangle::Rectangle(int lineNum, int width) {
+	l = lineNum;
+	w = width;
+}
+void Rectangle::draw() {
+	for (int i = 1; i <= l; i++)
+	{
+		for (int j = 1; j <= w; j++)
+		{
+			cout << "*";
+		}
+		cout << endl;
+	}
+	cout << "2023302111120 舒俊杰" << endl;
+}
+
+
+Rectangle.h
+
+#include <iostream>
+#include "Shape.h"
+
+class Rectangle :public Shape{
+public:
+	Rectangle(int lineNum, int width);
+	virtual void draw();
+private:
+	int l, w;
+};
+
+
