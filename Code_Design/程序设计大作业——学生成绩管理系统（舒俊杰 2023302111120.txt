@@ -1,0 +1,1144 @@
+程序设计大作业——学生成绩管理系统（舒俊杰 2023302111120）
+
+*********************************************************************************************************************
+学生成绩管理系统.cpp
+
+#include <iostream>
+#include "个人账户.h"
+using namespace std;
+
+
+
+int main() {
+	welcome();//欢迎动画
+	system("color F0");//设置颜色（黑字白底）
+	int id;
+	string name;
+	checkin(id,name);//登录账户
+	User my(id, name);//初始化账户
+	choosefunction(my);//进入功能界面
+	return 0;
+}
+**********************************************************************************************************************
+
+
+**********************************************************************************************************************
+个人账户.h
+
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+
+
+//学生信息的结构体，包含姓名、性别、id、成绩等信息
+struct Student {
+	int id;//学生id
+	char sex;//学生性别
+	string name;//学生姓名
+	int grade;//学生成绩
+	Student* next;//指向下一学生信息的指针
+	int num = 0;//相同成绩的个数
+};
+
+
+
+//账户类，包括账户姓名、账户id以及成员函数、链表指针等等
+class User {
+public:
+	//构造函数初始化链表及账户
+	User(int i, string n);
+	//析构函数delete链表
+	~User();
+	//将元素插入链表中
+	void insert(Student* );
+	//将元素从链表中删除
+	void remove(Student& );
+	//将目前的链表中的元素按成绩从小到大写入"学生信息档案.txt"文件中
+	void write();
+	//显示统计后的数据
+	void showcount();
+	//修改学生信息后，学生成绩可能会改变，所以该学生信息要改变在链表中的位置
+	void resort(Student* );
+	//通过重载函数，实现四种不同的方式查找元素，查找链表中相同的元素，并返回该因素地址，若未找到，则返回nullptr空指针
+	Student* find(Student& );//通过完整元素查找
+	Student* find(string );//通过姓名查找
+	Student* find(int );//通过id查找
+	Student* find(int ,char  );//通过成绩查找
+	Student* find(int , int );//通过成绩区间查找
+	//遍历链表并输出所有元素
+	void showInfo(bool);
+	//递增链表变动次数
+	void addstoretimes();//经过录入、修改、删除等等操作，链表内容发生改变，所以在保存时要清空原来"学生信息档案.txt"中的内容，所以要记录变动次数
+	string getname();//账户姓名的对外接口
+	int getid();//账户id的对外接口
+	int gettotalCount();//链表中元素个数的对外接口
+	int getstoretimes();//链表变动次数的对外接口
+private:
+	Student** rootArr;	//链表表头指针
+	int rootCapacity;	//链表总容量
+	int totalCount;		//整个容器中容纳的学生元素个数
+	const int INITIAL_ROOT_CAPACITY = 101;//初始链表容量
+	int id;//账户id
+	string name;//账户姓名
+	int storetimes = -1;//初始变动次数
+};
+
+
+//欢迎动画
+void welcome();
+//登录账户
+void checkin(int& i, string& n);
+//选择功能
+void choosefunction(User& my);
+
+
+//系统的功能：
+//1、录入学生信息 
+void putin(User& my);
+//2、打印学生信息 
+void print(User& my);
+//3、保存学生信息
+void store(User& my);
+//4、读取学生信息
+void read(User& my);
+//5、统计学生人数  
+void count(User& my);
+//6、查找学生信息  
+void seek(User& my);
+//7、修改学生信息 
+void modify(User& my);
+//8、删除学生信息 
+void cutout(User& my);
+//9、清空学生信息  
+void deletefile();
+//0、退出管理系统 
+void leave(int &a);
+
+
+//运算符重载：
+//输出学生信息中的成绩
+void studentPrint(Student& s);
+//读取学生信息中的成绩
+int studentHash(Student& s);
+//比较两份学生信息是否相同，相同返回true，不同返回false
+bool studentEqual(Student& s1, Student& s2);
+************************************************************************************************************************
+
+
+
+************************************************************************************************************************
+个人账户.cpp
+
+
+#include "个人账户.h"
+using namespace std;
+
+
+//重载运算符实现：
+void studentPrint(Student& s)//“（）”运算符输出传入参数的成绩
+{
+    cout << s.grade;
+}
+
+
+int studentHash(Student& s)//“（）”运算符返回传入参数的成绩
+{
+    return s.grade;
+}
+
+
+bool studentEqual(Student& s1, Student& s2)//“（）”运算符返回传入的两个参数比较的bool类型的结果
+{
+    if (s1.grade == s2.grade && s1.sex == s2.sex && s1.id == s2.id && s1.name == s2.name)
+        return true;
+    else
+        return false;
+}
+
+
+//账户类的构造函数初始化链表及账户
+User::User(int i, string n) {
+	id = i;
+	name = n;
+    rootCapacity = INITIAL_ROOT_CAPACITY;
+    rootArr = new Student * [rootCapacity];
+    for (int j = 0; j < rootCapacity; j++)
+        rootArr[j] = nullptr;
+    totalCount = 0;
+}
+
+
+//账户类的析构函数delete链表
+User::~User(){
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        Student* p = rootArr[i], * q;
+        while (p != nullptr)
+        {
+            q = p;
+            p = p->next;
+            delete q;
+        }
+    }
+    delete[] rootArr;
+    cout << "账户已经退出！！";//提示系统已经退出
+}
+
+
+//账户类的成员函数：
+//递增链表变动次数
+void User::addstoretimes(){
+    storetimes++;
+}
+
+
+//返回本对象的账户姓名
+string User::getname(){
+    return name;
+}
+
+
+//返回本对象的账户id
+int User::getid(){
+    return id;
+}
+
+
+//返回本对象的账户中链表的总容量
+int User::gettotalCount(){
+    return totalCount;
+}
+
+
+//返回本对象的账户中链表的变动次数
+int User::getstoretimes(){
+    return storetimes;
+}
+
+
+//将元素插入链表中
+void User::insert(Student* s){
+    int hashValue = studentHash(*s);
+    //链表头为空，元素直接插入在链表头，并将next指向空指针
+    if (rootArr[hashValue] == nullptr) 
+    {
+        rootArr[hashValue] = s;
+        rootArr[hashValue]->next = nullptr;
+        rootArr[hashValue]->num++;
+    }
+    else 
+    {
+        //链表头已经插入元素，链表头的next也已经插入元素，所以利用尾插法插入元素
+        if (rootArr[hashValue]->next != nullptr) 
+        {
+            s->next = rootArr[hashValue]->next;
+            rootArr[hashValue]->next = s;
+            rootArr[hashValue]->num++;
+        }
+        //链表头已经插入元素，但是链表头的next为空指针，元素直接插入在链表头的next中，并将元素的next指向空指针
+        if (rootArr[hashValue]->next == nullptr)
+        {
+            rootArr[hashValue]->next = s;
+            s->next = nullptr;
+            rootArr[hashValue]->num++;
+        }
+    }
+    totalCount++;//插入后链表元素递增
+    cout << "学生信息录入成功！！" << endl;
+}
+
+
+//将元素从链表中删除
+void User::remove(Student& s){
+    //计算哈希值，找到自己在根数组中的对应元素（链表头指针）
+    int hashValue = s.grade;
+    Student* p = rootArr[hashValue];
+    if (p == nullptr)
+    {
+        //头指针为空意味着要删除的元素不存在
+        std::cout << "不存在相同的元素！！";
+    }
+    else if (studentEqual(*p, s))
+    {
+        rootArr[hashValue]->num--;
+        //头指针指向的元素（即首元素）就是要找的，那么将该链表头改为原来链表头的next，在delete原来的链表头
+        rootArr[hashValue] = rootArr[hashValue]->next;
+        delete p;
+        totalCount--;//链表中元素递减
+    }
+    else
+    {
+        //以上两个分支都不成立才执行至此，意味着要找的元素不是链表首元素，而是next指针链中的元素
+        //依次遍历next指针链中的元素，找到后删除元素
+        while (p->next != nullptr) {
+            if (studentEqual(*(p->next), s))
+            {
+                rootArr[hashValue]->num--;
+                delete p->next;
+                p->next = (p->next)->next;
+                totalCount--;//链表中元素递减
+                break;
+            }
+            p = p->next;
+        }
+    }
+}
+
+
+//通过重载函数，实现四种不同的方式查找元素，查找链表中相同的元素，并返回该因素地址，若未找到，则返回nullptr空指针
+//通过完整元素查找
+Student* User::find(Student& s){
+    //计算哈希值，找到自己在根数组中的对应元素（链表头指针）
+    int hashValue = s.grade;//通过成绩来快速定位所要发现的元素
+    Student* p = rootArr[hashValue];
+    if (p != nullptr) {
+        while (p) {
+            //如果元素是要查找的，那么输出该元素的学生信息
+            if (studentEqual(*p, s))
+            {
+                cout << endl << "查找到的学生信息如下：" << endl;
+                cout << "|------------------------|" << endl;
+                cout << "|" << "姓名：" << p->name << endl
+                    << "|" << "性别：" << p->sex << endl
+                    << "|" << "id：" << p->id << endl
+                    << "|" << "成绩：" << p->grade << endl;
+                cout << "|------------------------|" << endl;
+                return p;
+                break;
+            }
+            p = p->next;
+            //该next指针链不存在所要发现的元素，返回nullptr空指针
+            if (p == nullptr) 
+            {
+                cout << endl << "该学生信息不存在！！" << endl;
+                return nullptr;
+            }
+        }
+    }
+    //该链表中不存在所要发现的元素，返回nullptr空指针
+    else 
+    {
+        cout <<endl<< "该学生信息不存在！！" << endl;
+        return nullptr;
+    }
+}
+
+
+//通过学生姓名查找
+Student* User::find(string n){
+    int a = 0;
+    cout << "|------------------------|" << endl;
+    cout << "姓名为" << n << "的学生如下：" << endl;
+    Student* q;
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        Student* p = rootArr[i];
+        if (p != nullptr)
+        {
+            while (p)
+            {
+                if (p->name == n)
+                {
+                    cout << "|------------------------|" << endl;
+                    cout << "|" << "姓名：" << p->name << endl
+                        << "|" << "性别：" << p->sex << endl
+                        << "|" << "id：" << p->id << endl
+                        << "|" << "成绩：" << p->grade << endl;
+                    cout << endl;
+                    a++;
+                    q = p;
+                }
+                p = p->next;
+            }
+        }
+    }
+    if (a == 0)
+    {
+        cout << "姓名为" << n << "的学生不存在!!" << endl;
+        return nullptr;
+    }
+    cout << "|------------------------|" << endl
+        << endl;
+    return q;
+}
+
+
+//通过学生id查找
+Student* User::find(int i){
+    int a = 0;
+    cout << "|------------------------|" << endl;
+    cout << "id为" << i << "的学生如下：" << endl;
+    Student* q;
+    for (int j = 0; j < rootCapacity; j++)
+    {
+        Student* p = rootArr[j];      
+        while (p)
+        {
+            if (p->id == i)
+            {
+                cout << "|------------------------|" << endl;
+                cout << "|" << "姓名：" << p->name << endl
+                     << "|" << "性别：" << p->sex << endl
+                     << "|" << "id：" << p->id << endl
+                     << "|" << "成绩：" << p->grade << endl;
+                cout << endl;
+                a++;
+                q = p;
+            }
+            p = p->next;
+        }
+        if (a == 0&&j== rootCapacity-1)
+        {
+            cout << "id为" << i << "的学生不存在" << endl;
+            return nullptr;
+        }
+    }
+    cout << "|------------------------|" << endl;
+    return q;
+}
+
+
+//通过学生成绩查找
+//具有与查找的成绩相同的学生信息可能不止一份，输出所有改成绩的学生信息，但是返回最后一份学生信息的地址
+Student* User::find(int g,char a){
+    //计算哈希值，找到自己在根数组中的对应元素（链表头指针）
+    int hashValue = g;
+    Student* q;
+    Student* p = rootArr[hashValue];
+    if (p != nullptr) 
+    {
+        cout << "|------------------------|" << endl;
+        cout << "成绩为" << g << "的学生有：" << endl;
+        while (p) 
+        {
+            cout << "|" << "姓名：" << p->name << endl
+                << "|" << "性别：" << p->sex << endl
+                << "|" << "id：" << p->id << endl
+                << "|" << "成绩：" << p->grade << endl;
+            q = p;
+            p = p->next;
+        }
+        cout << "|------------------------|" << endl;
+        cout << endl;
+        return q;
+    }
+    else 
+    {
+        cout << "成绩为" << g << "的学生不存在!!" << endl;
+        cout << endl;
+        return nullptr;
+    }
+}
+
+
+//通过学生成绩区间查找
+//具有与查找的成绩相同的学生信息可能不止一份，输出所有改成绩的学生信息，但是返回最后一份学生信息的地址
+Student* User::find(int l, int h) {
+    //计算哈希值，找到自己在根数组中的对应元素（链表头指针）
+    for (int hashValue = l; hashValue <= h; hashValue++)
+    {
+        int t = 0;
+        Student* q;
+        Student* p = rootArr[hashValue];
+        if (p != nullptr)
+        {
+            cout << "|------------------------|" << endl;
+            cout << "成绩为" << hashValue << "的学生有：" << endl;
+            while (p)
+            {
+                cout << "|" << "姓名：" << p->name << endl
+                    << "|" << "性别：" << p->sex << endl
+                    << "|" << "id：" << p->id << endl
+                    << "|" << "成绩：" << p->grade << endl
+                    <<endl;
+                q = p;
+                p = p->next;
+                t++;
+            }
+            cout << "|------------------------|" << endl;
+            cout << endl;
+        }
+        if (hashValue==h&&t!=0)
+            return q;
+        if (hashValue == h && t == 0)
+        {
+            cout <<endl
+                << "该成绩区间内无学生信息！！" << endl
+                << endl;
+            return nullptr;
+        }
+    }
+}
+
+
+//将目前的链表中的元素按成绩从小到大写入"学生信息档案.txt"文件中
+void User::write(){
+    ofstream stu;
+    stu.open("学生信息档案.txt", ios::out);//打开"学生信息档案.txt"文件
+    if (stu.is_open())//判断是否打开"学生信息档案.txt"文件成功
+    {
+        cout << "文件打开成功！！" << endl;
+        for (int i = 0; i < rootCapacity; i++)
+        {
+            Student* p = rootArr[i];
+            while (p)
+            {
+                stu << "姓名：" << p->name << endl
+                    << "性别：" << p->sex << endl
+                    << "id：" << p->id << endl
+                    << "成绩：" << p->grade <<endl
+                    <<endl;
+                p = p->next;
+            }
+        }
+    }
+    else
+    {
+        cout << "文件打开失败！！" << endl;
+    }
+    stu.close();//关闭"学生信息档案.txt"文件
+    addstoretimes();//递增链表变动次数
+}
+
+
+//遍历链表并输出所有元素
+void User::showInfo(bool showAllDetails){
+    cout << endl
+        << endl
+        << endl;
+    cout << "|************************|" << endl;
+    cout << "|--------学生信息--------|" << endl
+        << "|学生信息份数为： " << totalCount <<"份\n" ;
+    if (!showAllDetails)
+        return;
+    cout << "|------------------------|" << endl;
+    //利用循环按成绩从小到大输出链表中所有学生信息
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        Student* p = rootArr[i];
+        if (p) 
+        {
+            cout << "|"<< "成绩为" << i << "的学生有：" << "\n" ;
+            cout << "|************************|" << endl;
+        }
+        while (p)
+        {
+            cout <<"|" <<"姓名：" << p->name<< endl
+                << "|" << "性别：" << p->sex << endl
+                << "|" << "id：" << p->id << endl
+                << "|" << "成绩：" << p->grade << endl;
+            cout << endl;
+            p = p->next;
+            if(p==nullptr)
+                cout << "|------------------------|" << endl;
+        }
+    }
+    cout << endl
+        << endl;
+    cout << "学生信息打印结束！！";
+    cout << endl;
+}
+
+
+//显示统计后的数据
+void User::showcount(){
+    cout << "|------------------------|" << endl;
+    for (int i = 0; i < rootCapacity; i++)
+    {
+        Student* p = rootArr[i];
+        if (p) //显示相同成绩的份数
+        {
+            cout << "|" << "成绩为" << i << "的学生有"<<p->num << "位" << endl;
+            cout << "|************************|" << endl;
+        }
+        while (p)//显示该成绩的所有学生姓名
+        {
+            cout << "|" << "姓名：" << p->name  << endl;
+            p = p->next;
+            if (p == nullptr)
+                cout << "|------------------------|" << endl;
+        }
+    }
+}
+
+
+//修改学生信息后，学生成绩可能会改变，所以该学生信息要改变在链表中的位置
+void User::resort(Student* s){
+    Student* p = s;
+    if (s->next != nullptr) //链表中该元素的next指针不为空指针，利用成员函数void remove(*s)来删除
+    {
+        //删除原来的元素
+        remove(*s);
+    }
+    if (s->next == nullptr) //链表中该元素的next指针为空指针，直接删除
+    {
+        int i = s->grade;
+        rootArr[s->grade]->num--;
+        //删除原来的元素
+        s = nullptr;
+        delete p;
+        rootArr[i] = nullptr;
+        totalCount--;
+    }
+    //cout <<endl<< "学生信息修改成功！！" << endl;
+}
+
+
+//欢迎动画
+void welcome() {
+    system("color F0");
+    cout <<endl
+        <<"\t\t  学生成绩管理系统加载中…………\t\t" << endl;
+    for (float i = 1.5f; i > -1.5f; i -= 0.1f) {
+        for (float j = -1.5f; j < 1.5f; j += 0.05f) {
+            float x = i * i + j * j - 1;
+            if (x * x * x - i * i * i * j * j <= 0) {
+                system("color F0");
+                cout << "*";
+            }
+            else {
+                system("color F0");
+                cout << " ";
+            }
+        }
+        cout << endl;
+    }
+
+}
+
+
+//登录账户（以引用传入，来影响实参） 
+void checkin(int& i, string& n) {
+    system("color F0");
+    int id, ids;
+    string name;
+    cout << endl
+        << endl
+        << endl;
+    cout << "----欢迎使用学生成绩管理系统----" << endl
+        << endl
+        << endl
+        << endl
+        << "--------请先注册您的账户--------" << endl;
+    //注册账户信息
+    while (1) 
+    {
+        cout << "请输入您的姓名（英文）：";
+        cin >> name;
+        cout << "请输入您的id：";
+        cin >> id;
+        cout << "请再次输入您的id：";
+        cin >> ids;
+        //两次输入的id相同，注册成功
+        if (id == ids)
+        {
+            cout << "注册账户成功！！" << endl
+                << endl
+                << endl
+                << endl
+                << endl;
+            i = id;
+            n = name;
+            return;
+        }
+        //两次输入的id不同，重新注册账户
+        else
+        {
+            cout << endl
+                << endl;
+            cout << "您两次输入的id不同！！" << endl
+                << "账户注册失败，请重新注册!!" << endl;
+        }
+    }
+}
+
+
+//选择功能（循环结构，通过选项实现不同功能）
+void choosefunction(User& my) {
+    system("color F0");
+    int a = 1;
+    while (a) 
+    {
+    //跳转标记
+    FLAG1:
+        cout << endl
+            << endl
+            << endl;
+        //系统功能表格
+        cout<< "|--------------------------------|" << endl
+            << "|--------本系统功能如下：--------|" << endl
+            << "|--------------------------------|" << endl
+            << "|        1、录入学生信息         |" << endl
+            << "|        2、打印学生信息         |" << endl
+            << "|        3、保存学生信息         |" << endl
+            << "|        4、读取学生信息         |" << endl
+            << "|        5、统计学生人数         |" << endl
+            << "|        6、查找学生信息         |" << endl
+            << "|        7、修改学生信息         |" << endl
+            << "|        8、删除学生信息         |" << endl
+            << "|        9、清空学生信息         |" << endl
+            << "|        0、退出管理系统         |" << endl
+            << "|--------------------------------|" << endl;
+        char choose;
+        string name = my.getname();
+        cout << "尊敬的用户" << name << "请输入您需要的服务：";
+        cin >> choose;
+        //判断选择的功能是否在已有功能中
+        if (choose == '0' || (choose >= '1' && choose <= '9'))
+        {
+            //通过switch case语句来实行选择的功能
+            switch (choose)
+            {
+            case '1':
+                putin(my);
+                break;
+            case '2':
+                print(my);
+                break;
+            case '3':
+                store(my);
+                break;
+            case '4':
+                read(my);
+                break;
+            case '5':
+                count(my);
+                break;
+            case '6':
+                seek(my);
+                break;
+            case '7':
+                modify(my);
+                break;
+            case '8':
+                cutout(my);
+                break;
+            case '9':
+                deletefile();
+                break;
+            case '0':
+                leave(a);
+                break;
+            }
+        }
+        //选择的功能不在已有功能中，提示重新选择功能
+        else
+        {
+            cout << "您选择的功能不存在，请重新选择功能（0到9之间）" << endl;
+            goto FLAG1;//跳转到重新选择功能
+        }
+    }
+}
+
+
+//系统的功能的实现：
+//1、录入学生信息 
+void putin(User& my){
+    bool a = 1;
+    while (a)
+    {
+        //依次输入学生信息
+        cout << "请输入要录入的学生学生信息……" << endl;
+        Student* s = new Student;
+        cout << "请输入学生的姓名（英文）：" ;
+        cin >> s->name;
+        cout << "请输入性别(男性M,女性F)：" ;
+        cin >> s->sex;
+        cout << "请输入学生的id：";
+        cin >> s->id;
+        int y = 1;
+        while (y)
+        {
+            try
+            {
+                cout << "请输入成绩(0到100之间)：";
+                int x;
+                cin >> x;
+                //学生成绩在0到100之间，则录入成绩
+                if (x >= 0 && x <= 100)
+                {
+                    s->grade = x;
+                    y = 0;
+                }
+                else
+                {
+                    throw x;
+                }
+            }catch (int x) 
+            {
+                //学生成绩不在0到100之间，则重新录入成绩
+                cout << "您输入的成绩有误，请重新输入成绩！！" << endl;
+            }
+        }
+        //插入元素
+        my.insert(s);
+        cout <<endl
+            <<"目前学生信息份数为：" << my.gettotalCount() << "份"<<endl
+            <<endl
+            <<endl;
+        //选择是否继续录入成绩
+        cout << "是否继续录入学生信息" << endl
+            << "继续请输入1，停止请输入0：";
+        char b;
+        cin >> b;
+        if (b == '0')
+            break;
+    }
+    my.addstoretimes();//链表变动次数递增
+}
+
+
+//2、打印学生信息 
+void print(User& my){
+    cout << "目前学生信息如下：" << endl;
+    //遍历链表并输出所有元素
+    my.showInfo(true);
+}
+
+
+//3、保存学生信息
+void store(User& my){
+    cout << "开始保存数据，数据保存到“学生信息档案.txt”文件中……" << endl;
+    //取出链表变动次数
+    int time = my.getstoretimes();
+    if (time == 0)//如果链表变动次数为0，说明为第一次保存
+    {
+        //将目前的链表中的元素按成绩从小到大写入"学生信息档案.txt"文件中
+        my.write();
+    }
+    //如果链表变动次数不为0，说明为不是第一次保存或者链表已经变动，所以要先删除已经保存的学生信息，重新保存学生信息
+    else
+    {
+        ofstream stu("学生信息档案.txt", ios::out);//清空"学生信息档案.txt"
+        stu.close();//关闭"学生信息档案.txt"
+        //将目前的链表中的元素按成绩从小到大写入"学生信息档案.txt"文件中
+        my.write();
+    }
+    cout << "学生信息保存完毕!!" << endl
+        <<endl
+        <<endl;
+}
+
+
+//4、读取学生信息
+void read(User& my){
+    cout<< endl
+        << endl
+        << endl;
+    ifstream stu;
+    //打开"学生信息档案.txt"
+    stu.open("学生信息档案.txt", ios::out);
+    if (stu.is_open())//判断"学生信息档案.txt"是否打开成功
+    {
+        cout << "文件打开成功！！" << endl;
+        cout << "现在开始读取文件……" << endl;
+        cout << "文件内容如下：" <<endl
+            <<endl
+            <<endl;
+        string stubuf;
+        //利用循环依次一行一行输出"学生信息档案.txt"中的内容
+        while (getline(stu, stubuf))
+        {
+            cout << stubuf << endl;
+        }
+    }
+    //关闭"学生信息档案.txt"
+    stu.close();
+}
+
+
+//5、统计学生人数  
+void count(User& my){
+    cout << endl
+        << endl
+        << endl;
+    //输出目前链表中学生信息的总容量
+    cout << "|------------------------|" << endl;
+    cout << "|目前学生信息份数为：" << my.gettotalCount() << "份" << endl;
+    cout << "|------------------------|" << endl;
+    //显示统计后的数据
+    my.showcount();
+    cout << endl
+        << endl
+        << endl;
+    cout << "学生信息统计完毕！！" << endl;
+}
+
+
+//6、查找学生信息  
+void seek(User& my){
+    int t = 1;
+    while (t) 
+    {
+        cout << endl
+            << endl
+            << endl;
+        //选择查找方式
+        cout << "请选择查找的方式（1到4之间）" << endl
+            << "1、姓名（英文）" << endl
+            << "2、id" << endl
+            << "3、成绩（0到100之间）" << endl
+            << "4、成绩区间" << endl
+            << "5、以上全部"<< endl
+            << "您的查找方式为：";
+        char a;
+        cin >> a;
+        if (a >= '1' && a <= '5')
+        {
+            //通过姓名查找
+            if (a == '1')
+            {
+                cout << "请输入您要查找的姓名（英文）：";
+                string n;
+                cin >> n;
+                Student* s = my.find(n);
+            }
+            //通过id查找
+            if (a == '2')
+            {
+                cout << "请输入您要查找的id：";
+                int i;
+                cin >> i;
+                Student* s = my.find(i);
+            }
+            //通过成绩查找
+            if (a == '3')
+            {
+                FLAG4:
+                cout << "请输入您要查找的成绩（0到100之间）：";
+                int g;
+                cin >> g;
+                if (g <= 100 && g >= 0)
+                    Student* s = my.find(g, a);//因为成绩与id都是int类型，所以通过增加参数来实现函数的重载
+                else
+                {
+                    cout << "您输入的成绩有误，请重新输入您要查找的成绩（0到100之间）！！" << endl
+                        << endl;
+                    goto FLAG4;
+                }
+            }
+            //通过成绩区间来查找
+            if (a == '4')
+            {
+                cout << "请输入您要查找的成绩区间!!"<<endl;
+                int low,high;
+                FLAG5:
+                cout << "请输入您要查找的成绩下限（0到100之间）：";
+                cin >> low;
+                if (low > 100 || low < 0)
+                {
+                    cout << "您输入的成绩有误，请重新输入您要查找的成绩下限（0到100之间）！！" << endl
+                        << endl;
+                    goto FLAG5;
+                }
+                FLAG6:
+                cout << "请输入您要查找的成绩上限（0到100之间）：";
+                cin >> high;
+                if (high > 100 || high < 0)
+                {
+                    cout << "您输入的成绩有误，请重新输入您要查找的成绩上限（0到100之间）！！" << endl
+                        << endl;
+                    goto FLAG6;
+                }
+                if (high < low)
+                {
+                    cout << "您输入的成绩上限小于下限，请重新输入您要查找的成绩区间（0到100之间）！！" << endl
+                        << endl;
+                    goto FLAG5;
+                }
+                Student* s = my.find(low, high);//因为成绩与id都是int类型，所以通过增加参数来实现函数的重载
+            }
+            //通过完整学生信息查找
+            if (a == '5')
+            {
+                Student s1;
+                cout << "请输入您要查找的姓名（英文）：";
+                cin >> s1.name;
+                cout << "请输入您要查找的性别(男性M,女性F)：";
+                cin >> s1.sex;
+                cout << "请输入您要查找的id：";
+                cin >> s1.id;
+                FLAG7:
+                cout << "请输入您要查找的成绩（0到100之间）：";
+                int g;
+                cin >> g;
+                if (g <= 100 && g >= 0)
+                {
+                    s1.grade = g;
+                }
+                else
+                {
+                    cout << "您输入的成绩有误，请重新输入查找的成绩（0到100之间）！！" << endl
+                        << endl;
+                    goto FLAG7;
+                }
+                Student* s = my.find(s1);
+            }
+            t = 0;
+        }
+        //选择不是以上查找方式，提示重新选择查找方式
+        else
+        {
+            cout << endl
+                << endl;
+            cout << "您选择的方式有误，请重新选择方式！！" << endl;
+        }
+    }
+}
+
+
+//7、修改学生信息 
+void modify(User& my)
+{
+    cout << endl
+        << endl
+        << endl;
+    my.addstoretimes();
+FALG2://跳转标记
+    //输入要修改的学生信息，来获取链表中该学生信息的地址
+    cout << "请输入您要修改的学生信息！！" << endl;
+    Student s1;
+    cout << "请输入您要修改的学生姓名（英文）：";
+    cin >> s1.name;
+    cout << "请输入您要修改的学生性别(男性M,女性F)：";
+    cin >> s1.sex;
+    cout << "请输入您要修改的学生id：";
+    cin >> s1.id;
+    FLAG8:
+    cout << "请输入您要修改的学生成绩（0到100之间）：";
+    int g1;
+    cin >> g1;
+    if (g1 <= 100 && g1 >= 0)
+    {
+        s1.grade = g1;
+    }
+    else
+    {
+        cout << "您输入的成绩有误，请重新输入修改的成绩（0到100之间）！！" << endl
+            << endl;
+        goto FLAG8;
+    }
+    cout << endl << "该学生信息如下：" << endl;
+    Student* s = my.find(s1);
+    //返回的地址为空，说明要修改的学生信息不存在，所以重新输入要修改的学生信息
+    if (s == nullptr)
+    {
+        cout << "请重新输入您要修改的学生信息！！" << endl;
+        //跳转到标记，重新输入要修改的学生信息
+        goto FALG2;
+    }
+    //重新创建一个Student对象来构建新的元素
+    Student* s2=new Student;
+    cout <<endl<< "请输入您修改后的信息！！" << endl;
+    cout << "请输入您修改后的学生姓名（英文）：";
+    cin >> s2->name;
+    cout << "请输入您要修改的学生性别(男性M,女性F)：";
+    cin >> s2->sex;
+    cout << "请输入您修改后的学生id：";
+    cin >> s2->id;
+    FLAG9:
+    cout << "请输入您修改后的学生成绩（0到100之间）：";
+    int g2;
+    cin >> g2;
+    if (g2 <= 100 && g2 >= 0)
+    {
+        s2->grade = g2;
+    }
+    else
+    {
+        cout << "您输入的成绩有误，请重新输入修改后的学生成绩（0到100之间）！！" << endl
+            << endl;
+        goto FLAG9;
+    }
+    //成绩发生改变，元素在链表中的位置要改变
+    if (s->grade != s2->grade)
+    {
+        //重新排该元素的位置
+        my.resort(s);
+        my.insert(s2);
+    }
+    //成绩没有发生改变，元素在链表中的位置不用改变，只需重新给元素的属性赋值
+    else
+    {
+        s->name = s2->name;
+        s->sex = s2->sex;
+        s->grade = s2->grade;
+        s->id = s2->id;
+    }
+    cout << endl << "学生信息修改成功！！" << endl;
+
+}
+
+
+//8、删除学生信息 
+void cutout(User& my)
+{
+    cout << endl
+        << endl
+        << endl;
+    my.addstoretimes();
+FALG3://跳转标记
+    //输入要删除的学生信息，来查找链表中的学生信息
+    cout << "请输入您要删除的学生信息！！" << endl;
+    Student s1;
+    cout << "请输入您要删除的学生姓名（英文）：";
+    cin >> s1.name;
+    cout << "请输入您要删除的学生性别(男性M,女性F)：";
+    cin >> s1.sex;
+    cout << "请输入您要删除的学生id：";
+    cin >> s1.id;
+    FLAG10:
+    cout << "请输入您要删除的学生成绩（0到100之间）：";
+    int g1;
+    cin >> g1;
+    if (g1 <= 100 && g1 >= 0)
+    {
+        s1.grade = g1;
+    }
+    else
+    {
+        cout << "您输入的成绩有误，请重新输入删除的成绩（0到100之间）！！" << endl
+            << endl;
+        goto FLAG10;
+    }
+    cout << endl << "该学生信息如下：" << endl;
+    Student* s = my.find(s1);
+    if (s == nullptr)
+    {
+        cout << "请重新输入您要删除的学生信息！！" << endl;
+        //跳转到标记处，重新输入学生信息
+        goto FALG3;
+    }
+    //删除链表中要删除的学生信息
+    my.remove(*s);
+    cout <<endl<< "该学生信息已删除！！" << endl;
+}
+
+
+//9、清空学生信息  
+void deletefile()
+{
+    cout << endl
+        << endl
+        << endl;
+    cout << "学生信息清空中……";
+    ofstream stu("学生信息档案.txt", ios::out);//清空"学生信息档案.txt"中的学生信息  
+    cout << endl
+        << endl
+        << endl;
+    stu.close();//关闭"学生信息档案.txt"
+    cout << "学生信息清空成功！！";
+}
+
+
+//0、退出管理系统 （引用形式传入，改变实参结束选择功能函数，结束程序）
+void leave(int& a)
+{
+    cout << endl
+        << endl
+        << endl;
+    a = 0;//改变实参
+}
